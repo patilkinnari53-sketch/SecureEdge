@@ -1,0 +1,455 @@
+<?php
+$pageTitle = "Secure Multi-Layer Edge Architecture for IoT Smart Homes";
+include 'header.php';
+require_once 'database.php';
+
+try {
+    $db = new IoTDatabase();
+    $conn = $db->connect();
+    
+    // Get devices
+    $stmt = $conn->query("SELECT * FROM devices ORDER BY room, device_name");
+    $devices = $stmt->fetchAll();
+    
+    // Get recent security events
+    $stmt = $conn->query("SELECT * FROM security_events ORDER BY timestamp DESC LIMIT 5");
+    $events = $stmt->fetchAll();
+    
+    // Count devices by type for layer distribution
+    $device_types = $conn->query("SELECT device_type, COUNT(*) as count FROM devices GROUP BY device_type")->fetchAll();
+    
+} catch(Exception $e) {
+    $devices = [];
+    $events = [];
+    $device_types = [];
+}
+?>
+
+<div class="container">
+    <!-- ===== HERO SECTION ===== -->
+    <div class="row min-vh-75 align-items-center py-5">
+        <div class="col-lg-8">
+            <h1 class="display-3 fw-bold mb-4">
+                <span class="text-cyber">Secure & Lightweight</span><br>
+                Multi-Layer Architecture for<br>
+                IoT-Based Smart Homes
+            </h1>
+            <p class="lead text-secondary mb-4">
+                Edge computing powered security with three-layer defense: 
+                <span class="text-cyber fw-bold">Device Layer</span> → 
+                <span class="text-cyber fw-bold">Edge Layer</span> → 
+                <span class="text-cyber fw-bold">Cloud Layer</span>
+            </p>
+            <div class="d-flex gap-3 mb-4">
+                <a href="architecture.php" class="btn btn-iot">
+                    <i class="fas fa-diagram-project me-2"></i>View Architecture
+                </a>
+                <a href="security.php" class="btn btn-iot">
+                    <i class="fas fa-shield-alt me-2"></i>Security Mechanisms
+                </a>
+            </div>
+            
+            <!-- Security Feature Badges -->
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-lock me-1"></i>AES-256</span>
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-key me-1"></i>RSA Key Exchange</span>
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-shield me-1"></i>TLS 1.3</span>
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-fingerprint me-1"></i>Multi-Factor Auth</span>
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-robot me-1"></i>Edge IDS</span>
+                <span class="badge bg-cyber text-dark p-2"><i class="fas fa-users-cog me-1"></i>RBAC</span>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="iot-card text-center">
+                <i class="fas fa-microchip fa-4x text-cyber mb-3"></i>
+                <h3>Edge Computing</h3>
+                <p class="text-secondary">Real-time processing at the edge</p>
+                <div class="progress mb-2" style="height: 20px;">
+                    <div class="progress-bar bg-cyber" style="width: 43%">43% faster</div>
+                </div>
+                <p class="small text-cyber mt-2">↓ 43% latency reduction</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== THREE-LAYER ARCHITECTURE VISUALIZATION ===== -->
+    <div class="row my-5">
+        <div class="col-12">
+            <h2 class="section-title">Three-Layer Edge Architecture</h2>
+            <p class="text-secondary mb-4">Our proposed secure and lightweight architecture</p>
+        </div>
+        
+        <!-- Layer 1: Device Layer -->
+        <div class="col-md-4">
+            <div class="iot-card text-center h-100">
+                <div class="layer-icon mb-3">
+                    <i class="fas fa-microchip fa-3x text-cyber"></i>
+                </div>
+                <h3>Device Layer</h3>
+                <p class="text-secondary">IoT Sensors & Actuators</p>
+                <ul class="list-unstyled text-start small mt-3">
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>AES-256 Encryption</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Secure Boot</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Hardware Security</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Lightweight Protocols</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="badge bg-cyber text-dark"><?php echo count($devices); ?> devices</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Layer 2: Edge Layer (Core) -->
+        <div class="col-md-4">
+            <div class="iot-card text-center h-100 border-cyber" style="border-width: 2px;">
+                <div class="layer-icon mb-3" style="background: rgba(0,255,255,0.2);">
+                    <i class="fas fa-server fa-3x text-cyber"></i>
+                </div>
+                <h3 class="text-cyber">Edge Layer</h3>
+                <p class="text-secondary">Local Processing & Security</p>
+                <ul class="list-unstyled text-start small mt-3">
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Intrusion Detection (IDS)</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>RSA Key Exchange</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Role-Based Access Control</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Multi-Factor Authentication</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>5ms Processing Latency</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="badge bg-cyber text-dark">Edge Gateway Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Layer 3: Cloud Layer -->
+        <div class="col-md-4">
+            <div class="iot-card text-center h-100">
+                <div class="layer-icon mb-3">
+                    <i class="fas fa-cloud fa-3x text-cyber"></i>
+                </div>
+                <h3>Cloud Layer</h3>
+                <p class="text-secondary">Analytics & Long-term Storage</p>
+                <ul class="list-unstyled text-start small mt-3">
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Encrypted Storage</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Secure Firmware Updates</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>ML-based Analytics</li>
+                    <li><i class="fas fa-check-circle text-cyber me-2"></i>Audit Logging</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="badge bg-cyber text-dark">TLS 1.3</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ARCHITECTURE FLOW DIAGRAM ===== -->
+    <div class="row my-5">
+        <div class="col-12">
+            <div class="iot-card p-4">
+                <h3 class="text-center mb-4">Data Flow Across Layers</h3>
+                <div class="row align-items-center text-center">
+                    <div class="col-md-3">
+                        <i class="fas fa-home fa-3x text-cyber mb-2"></i>
+                        <h5>Device Layer</h5>
+                        <p class="small">AES Encrypted</p>
+                    </div>
+                    <div class="col-md-1">
+                        <i class="fas fa-arrow-right fa-2x text-cyber"></i>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-shield-alt fa-3x text-cyber mb-2"></i>
+                        <h5>Edge Layer</h5>
+                        <p class="small">IDS + RBAC + MFA</p>
+                    </div>
+                    <div class="col-md-1">
+                        <i class="fas fa-arrow-right fa-2x text-cyber"></i>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-cloud fa-3x text-cyber mb-2"></i>
+                        <h5>Cloud Layer</h5>
+                        <p class="small">TLS 1.3</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PERFORMANCE METRICS ===== -->
+    <div class="row my-5">
+        <div class="col-12">
+            <h2 class="section-title">Performance Results</h2>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">43%</h2>
+                <p class="text-secondary">Latency Reduction</p>
+                <small>vs cloud-only architecture</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-shield-virus fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">98.7%</h2>
+                <p class="text-secondary">Attack Detection</p>
+                <small>at edge layer</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-layer-group fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">3</h2>
+                <p class="text-secondary">Security Layers</p>
+                <small>defense in depth</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-clock fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">5ms</h2>
+                <p class="text-secondary">Edge Processing</p>
+                <small>real-time response</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DEVICES SECTION (Your existing device cards) ===== -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="fas fa-microchip text-cyber me-2"></i>
+                Connected IoT Devices
+            </h2>
+            <p class="text-secondary mb-4">Secure multi-layer protected devices</p>
+        </div>
+        
+        <?php if(empty($devices)): ?>
+        <div class="col-12">
+            <div class="iot-card text-center p-5">
+                <i class="fas fa-database fa-4x text-cyber mb-3"></i>
+                <h3>No Devices Found</h3>
+                <p class="mb-4">Please run setup first</p>
+                <a href="setup.php" class="btn btn-iot">Run Setup</a>
+            </div>
+        </div>
+        <?php else: ?>
+            <?php foreach($devices as $device): ?>
+            <div class="col-md-3 mb-3">
+                <div class="iot-card" id="device-<?php echo $device['id']; ?>">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <?php
+                            $icon = 'fa-microchip';
+                            if($device['device_type'] == 'light') $icon = 'fa-lightbulb';
+                            elseif($device['device_type'] == 'camera') $icon = 'fa-video';
+                            elseif($device['device_type'] == 'lock') $icon = 'fa-lock';
+                            elseif($device['device_type'] == 'thermostat') $icon = 'fa-temperature-high';
+                            ?>
+                            <i class="fas <?php echo $icon; ?> fa-2x text-cyber mb-2"></i>
+                            <h5><?php echo htmlspecialchars($device['device_name']); ?></h5>
+                            <p class="small text-secondary mb-1">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                <?php echo htmlspecialchars($device['room']); ?>
+                            </p>
+                        </div>
+                        <span class="status-dot <?php echo $device['status'] ? 'status-online' : 'status-offline'; ?>"></span>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <!-- Security Layer Indicator -->
+                        <div class="small mb-2">
+                            <i class="fas fa-shield-alt text-cyber me-1"></i>
+                            <span class="text-cyber">Device Layer</span>
+                            <span class="badge bg-cyber text-dark ms-2">AES-256</span>
+                        </div>
+                        
+                        <p class="small mb-1">
+                            <i class="fas fa-microchip me-1"></i>
+                            Type: <?php echo ucfirst($device['device_type']); ?>
+                        </p>
+                        
+                        <!-- Toggle Switch (kept exactly as is) -->
+                        <label class="switch mt-2">
+                            <input type="checkbox" class="device-toggle" 
+                                   data-device-id="<?php echo $device['id']; ?>"
+                                   <?php echo $device['status'] ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ms-2 small">Power</span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <!-- ===== SECURITY MONITORING ===== -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="iot-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-shield-alt text-cyber me-2"></i>
+                    Edge IDS Monitoring
+                </h4>
+                <div class="data-stream" style="max-height: 200px;">
+                    <?php if(empty($events)): ?>
+                        <p class="text-cyber">✓ No security threats detected - System secure</p>
+                    <?php else: ?>
+                        <?php foreach($events as $event): ?>
+                        <div class="mb-2 p-2" style="border-left: 3px solid <?php 
+                            echo $event['severity'] == 'HIGH' ? 'var(--danger)' : 
+                                ($event['severity'] == 'MEDIUM' ? 'var(--warning)' : 'var(--primary)'); 
+                        ?>;">
+                            <small class="text-secondary"><?php echo $event['timestamp']; ?></small>
+                            <p class="mb-0 small">
+                                <i class="fas fa-shield-alt text-cyber me-2"></i>
+                                <?php echo htmlspecialchars($event['description']); ?>
+                            </p>
+                            <small class="text-cyber"><?php echo $event['severity']; ?> severity</small>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="iot-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-microchip text-cyber me-2"></i>
+                    Edge Computing Status
+                </h4>
+                <div class="data-stream">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fas fa-check-circle text-cyber me-2"></i>Edge Gateway</span>
+                            <span class="text-cyber">Active</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 5px;">
+                            <div class="progress-bar bg-cyber" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fas fa-robot text-cyber me-2"></i>IDS System</span>
+                            <span class="text-cyber">Monitoring</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 5px;">
+                            <div class="progress-bar bg-cyber" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fas fa-lock text-cyber me-2"></i>AES-256</span>
+                            <span class="text-cyber">Enabled</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 5px;">
+                            <div class="progress-bar bg-cyber" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span><i class="fas fa-tachometer-alt text-cyber me-2"></i>Edge Load</span>
+                            <span class="text-cyber">42%</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 5px;">
+                            <div class="progress-bar bg-cyber" style="width: 42%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ARCHITECTURE HIGHLIGHTS ===== -->
+    <div class="row my-5">
+        <div class="col-12">
+            <div class="iot-card p-4" style="background: linear-gradient(145deg, var(--card-bg), #1a2639);">
+                <h3 class="text-center text-cyber mb-4">✨ Key Architecture Features</h3>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <i class="fas fa-bolt fa-2x text-cyber mb-2"></i>
+                        <h5>Lightweight</h5>
+                        <p class="small">Minimal overhead</p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-shield-alt fa-2x text-cyber mb-2"></i>
+                        <h5>Multi-Layer</h5>
+                        <p class="small">Defense in depth</p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-microchip fa-2x text-cyber mb-2"></i>
+                        <h5>Edge Computing</h5>
+                        <p class="small">5ms latency</p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-robot fa-2x text-cyber mb-2"></i>
+                        <h5>IDS at Edge</h5>
+                        <p class="small">98.7% detection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional styles for architecture visualization */
+.layer-icon {
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+    border-radius: 50%;
+    background: rgba(0, 255, 255, 0.1);
+    margin: 0 auto;
+    transition: 0.3s;
+}
+
+.layer-icon:hover {
+    transform: scale(1.1);
+    background: rgba(0, 255, 255, 0.2);
+}
+
+.progress {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 1s;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: var(--primary);
+}
+
+.badge.bg-cyber {
+    background: var(--primary);
+    color: var(--dark);
+    font-weight: 500;
+}
+
+.border-cyber {
+    border-color: var(--primary) !important;
+}
+</style>
+
+<?php include 'footer.php'; ?>

@@ -1,0 +1,278 @@
+<?php
+// header.php
+session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle ?? 'IoT Smart Home'; ?></title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0f1f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #00ffff;
+            --secondary: #4169e1;
+            --success: #00ff9d;
+            --danger: #ff4444;
+            --warning: #ffd700;
+            --dark: #0a0f1f;
+            --card-bg: #151f2f;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(10, 15, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-link {
+            color: #fff !important;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+        }
+        
+        /* Cards */
+        .iot-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .iot-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+        }
+        
+        .iot-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Status indicators */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline {
+            background: var(--danger);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+        
+        /* Buttons */
+        .btn-iot {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 25px;
+            transition: 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-iot:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: scale(1.05);
+        }
+        
+        .btn-iot:active {
+            transform: scale(0.95);
+        }
+        
+        /* Watch connection bar */
+        .watch-bar {
+            background: rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid var(--primary);
+            padding: 10px 0;
+        }
+        
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Data stream */
+        .data-stream {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: slideIn 0.5s ease;
+        }
+        
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: var(--dark);
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 9999;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 15px rgba(0,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-microchip me-2"></i>IoT Secure<span style="color: var(--primary);">Edge</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <?php
+                    $current_page = basename($_SERVER['PHP_SELF']);
+                    $pages = [
+                        'index.php' => 'Dashboard',
+                        'devices.php' => 'Devices', 
+                        'security.php' => 'Security',
+                        'watch_connection.php' => 'My Watch' 
+                    ];
+                    
+                    foreach($pages as $page => $title) {
+                        $active = ($current_page == $page) ? 'active' : '';
+                        echo "<li class='nav-item'><a class='nav-link $active' href='$page'>$title</a></li>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Smart Watch Connection Bar -->
+    <div class="watch-bar">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <i class="fas fa-clock text-cyber me-2"></i>
+                    <span id="watchStatus" class="text-secondary">Smart Watch: Disconnected</span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-iot btn-sm" onclick="connectWatch()">
+                        <i class="fas fa-bluetooth me-2"></i>Connect Watch
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main>

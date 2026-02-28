@@ -1,0 +1,645 @@
+<?php
+$pageTitle = "Three-Layer Edge Architecture - Secure IoT Smart Home";
+include 'header.php';
+require_once 'database.php';
+
+$db = new IoTDatabase();
+$conn = $db->connect();
+
+// Get device counts for each layer (for demonstration)
+$total_devices = $conn->query("SELECT COUNT(*) FROM devices")->fetchColumn();
+$device_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('sensor', 'light', 'lock')")->fetchColumn();
+$edge_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('camera', 'thermostat', 'gateway')")->fetchColumn();
+$cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('plug', 'hub')")->fetchColumn();
+?>
+
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-3 fw-bold mb-4">
+                <span class="text-cyber">Three-Layer Edge</span> Architecture
+            </h1>
+            <p class="lead text-secondary mx-auto" style="max-width: 800px;">
+                A secure and lightweight multi-layer architecture combining device, edge, and cloud computing 
+                for IoT-based smart home systems
+            </p>
+        </div>
+    </div>
+
+    <!-- Architecture Overview Diagram -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="iot-card p-5">
+                <div class="row align-items-center text-center g-4">
+                    <!-- Device Layer -->
+                    <div class="col-md-3">
+                        <div class="architecture-node p-4" style="background: rgba(0,255,255,0.05); border-radius: 15px;">
+                            <div class="layer-icon-large mb-3">
+                                <i class="fas fa-microchip fa-4x text-cyber"></i>
+                            </div>
+                            <h3>Device Layer</h3>
+                            <p class="small text-secondary">IoT Sensors & Actuators</p>
+                            <div class="security-badge mt-2">
+                                <span class="badge bg-cyber text-dark">AES-256</span>
+                                <span class="badge bg-cyber text-dark">Secure Boot</span>
+                            </div>
+                            <div class="mt-3">
+                                <span class="display-6 text-cyber"><?php echo $device_layer_count; ?></span>
+                                <small class="text-secondary">devices</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div class="col-md-1">
+                        <i class="fas fa-arrow-right fa-3x text-cyber d-none d-md-block"></i>
+                        <i class="fas fa-arrow-down fa-3x text-cyber d-md-none"></i>
+                    </div>
+                    
+                    <!-- Edge Layer (Core) -->
+                    <div class="col-md-3">
+                        <div class="architecture-node p-4 border-cyber" style="border-width: 3px; border-radius: 15px; background: rgba(0,255,255,0.1);">
+                            <div class="layer-icon-large mb-3">
+                                <i class="fas fa-server fa-4x text-cyber"></i>
+                            </div>
+                            <h3 class="text-cyber">Edge Layer</h3>
+                            <p class="small text-secondary">Gateway & Processing</p>
+                            <div class="security-badge mt-2">
+                                <span class="badge bg-cyber text-dark">IDS</span>
+                                <span class="badge bg-cyber text-dark">RSA</span>
+                                <span class="badge bg-cyber text-dark">RBAC</span>
+                                <span class="badge bg-cyber text-dark">MFA</span>
+                            </div>
+                            <div class="mt-3">
+                                <span class="display-6 text-cyber"><?php echo $edge_layer_count; ?></span>
+                                <small class="text-secondary">devices</small>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-warning text-dark">5ms latency</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <div class="col-md-1">
+                        <i class="fas fa-arrow-right fa-3x text-cyber d-none d-md-block"></i>
+                        <i class="fas fa-arrow-down fa-3x text-cyber d-md-none"></i>
+                    </div>
+                    
+                    <!-- Cloud Layer -->
+                    <div class="col-md-3">
+                        <div class="architecture-node p-4" style="background: rgba(0,255,255,0.05); border-radius: 15px;">
+                            <div class="layer-icon-large mb-3">
+                                <i class="fas fa-cloud fa-4x text-cyber"></i>
+                            </div>
+                            <h3>Cloud Layer</h3>
+                            <p class="small text-secondary">Analytics & Storage</p>
+                            <div class="security-badge mt-2">
+                                <span class="badge bg-cyber text-dark">TLS 1.3</span>
+                                <span class="badge bg-cyber text-dark">Encrypted Storage</span>
+                            </div>
+                            <div class="mt-3">
+                                <span class="display-6 text-cyber"><?php echo $cloud_layer_count; ?></span>
+                                <small class="text-secondary">devices</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Highlights -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">43%</h2>
+                <p class="text-secondary">Latency Reduction</p>
+                <small>vs cloud-only architecture</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-shield-virus fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">98.7%</h2>
+                <p class="text-secondary">Attack Detection</p>
+                <small>IDS at edge layer</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-layer-group fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">3</h2>
+                <p class="text-secondary">Security Layers</p>
+                <small>Defense in depth</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="iot-card text-center">
+                <i class="fas fa-clock fa-3x text-cyber mb-3"></i>
+                <h2 class="text-cyber">5ms</h2>
+                <p class="text-secondary">Edge Processing</p>
+                <small>Real-time response</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Layer Explanation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="section-title">Layer-by-Layer Architecture</h2>
+        </div>
+    </div>
+
+    <!-- Layer 1: Device Layer -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="iot-card">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="layer-detail-icon">
+                            <i class="fas fa-microchip fa-3x text-cyber mb-3"></i>
+                            <h2 class="text-cyber">Layer 1</h2>
+                            <h3>Device Layer</h3>
+                            <p class="small text-secondary">IoT End Devices</p>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Components</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Smart Sensors</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Actuators</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Smart Locks</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>LED Lights</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Motion Detectors</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Security Mechanisms</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-lock text-cyber me-2"></i>AES-256 Encryption</li>
+                                    <li class="mb-2"><i class="fas fa-shield text-cyber me-2"></i>Secure Boot</li>
+                                    <li class="mb-2"><i class="fas fa-microchip text-cyber me-2"></i>Hardware Security Module</li>
+                                    <li class="mb-2"><i class="fas fa-key text-cyber me-2"></i>Device Authentication</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                    <h6 class="text-cyber">Communication Protocol:</h6>
+                                    <span class="badge bg-cyber text-dark me-2">MQTT</span>
+                                    <span class="badge bg-cyber text-dark me-2">CoAP</span>
+                                    <span class="badge bg-cyber text-dark">HTTP/TLS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layer 2: Edge Layer (Core) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="iot-card border-cyber" style="border-width: 2px;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="layer-detail-icon">
+                            <i class="fas fa-server fa-3x text-cyber mb-3"></i>
+                            <h2 class="text-cyber">Layer 2</h2>
+                            <h3 class="text-cyber">Edge Layer</h3>
+                            <p class="small text-secondary">Core Processing Unit</p>
+                            <span class="badge bg-warning text-dark">⭐ CRITICAL</span>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Components</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Edge Gateway</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Local Processing Unit</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>IDS/IPS Engine</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Key Management System</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Local Database</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Security Mechanisms</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-shield-alt text-cyber me-2"></i>Intrusion Detection (IDS)</li>
+                                    <li class="mb-2"><i class="fas fa-key text-cyber me-2"></i>RSA-2048 Key Exchange</li>
+                                    <li class="mb-2"><i class="fas fa-users-cog text-cyber me-2"></i>Role-Based Access Control</li>
+                                    <li class="mb-2"><i class="fas fa-fingerprint text-cyber me-2"></i>Multi-Factor Authentication</li>
+                                    <li class="mb-2"><i class="fas fa-lock text-cyber me-2"></i>TLS 1.3 Termination</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="p-2 text-center" style="background: rgba(0,255,255,0.1); border-radius: 8px;">
+                                    <small class="text-cyber">Processing Latency</small>
+                                    <h4 class="text-cyber">5ms</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-2 text-center" style="background: rgba(0,255,255,0.1); border-radius: 8px;">
+                                    <small class="text-cyber">Threat Detection</small>
+                                    <h4 class="text-cyber">98.7%</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-2 text-center" style="background: rgba(0,255,255,0.1); border-radius: 8px;">
+                                    <small class="text-cyber">Offline Operation</small>
+                                    <h4 class="text-cyber">✓ Supported</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layer 3: Cloud Layer -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="iot-card">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="layer-detail-icon">
+                            <i class="fas fa-cloud fa-3x text-cyber mb-3"></i>
+                            <h2 class="text-cyber">Layer 3</h2>
+                            <h3>Cloud Layer</h3>
+                            <p class="small text-secondary">Analytics & Storage</p>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Components</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Cloud Servers</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Database Storage</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Analytics Engine</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Update Server</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Backup Systems</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-cyber mb-3">Security Mechanisms</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-lock text-cyber me-2"></i>TLS 1.3 Encryption</li>
+                                    <li class="mb-2"><i class="fas fa-database text-cyber me-2"></i>Encrypted at Rest</li>
+                                    <li class="mb-2"><i class="fas fa-sync text-cyber me-2"></i>Secure Firmware Updates</li>
+                                    <li class="mb-2"><i class="fas fa-history text-cyber me-2"></i>Audit Logging</li>
+                                    <li class="mb-2"><i class="fas fa-chart-line text-cyber me-2"></i>ML-based Analytics</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                    <h6 class="text-cyber">Data Flow:</h6>
+                                    <span class="badge bg-cyber text-dark me-2">Edge → Cloud</span>
+                                    <span class="badge bg-cyber text-dark me-2">TLS 1.3</span>
+                                    <span class="badge bg-cyber text-dark">Encrypted</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Flow Diagram -->
+    <div class="row mt-5 mb-4">
+        <div class="col-12">
+            <h2 class="section-title">Data Flow Across Layers</h2>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="iot-card p-4">
+                <div class="flow-diagram">
+                    <!-- Step 1 -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-center">
+                            <div class="flow-step">1</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="flow-node">
+                                <i class="fas fa-microchip text-cyber mb-2"></i>
+                                <h5>Device Layer</h5>
+                                <p class="small">Data Collection</p>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="flow-description p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                <span class="badge bg-cyber text-dark mb-2">Step 1</span>
+                                <p class="mb-0">Sensors collect data, encrypt with <strong class="text-cyber">AES-256</strong>, and send to edge gateway via MQTT/TLS</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-center">
+                            <div class="flow-step">2</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="flow-node">
+                                <i class="fas fa-server text-cyber mb-2"></i>
+                                <h5 class="text-cyber">Edge Layer</h5>
+                                <p class="small">Processing & Security</p>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="flow-description p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                <span class="badge bg-cyber text-dark mb-2">Step 2</span>
+                                <p class="mb-0">Edge gateway runs <strong class="text-cyber">IDS</strong> inspection, applies <strong class="text-cyber">RBAC</strong>, processes data locally (5ms)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-center">
+                            <div class="flow-step">3</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="flow-node">
+                                <i class="fas fa-shield-alt text-cyber mb-2"></i>
+                                <h5>Secure Transmission</h5>
+                                <p class="small">TLS 1.3</p>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="flow-description p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                <span class="badge bg-cyber text-dark mb-2">Step 3</span>
+                                <p class="mb-0">Data encrypted with <strong class="text-cyber">TLS 1.3</strong>, <strong class="text-cyber">RSA key exchange</strong> for secure channel</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <div class="flow-step">4</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="flow-node">
+                                <i class="fas fa-cloud text-cyber mb-2"></i>
+                                <h5>Cloud Layer</h5>
+                                <p class="small">Analytics & Storage</p>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="flow-description p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                <span class="badge bg-cyber text-dark mb-2">Step 4</span>
+                                <p class="mb-0">Cloud performs <strong class="text-cyber">ML analytics</strong>, stores encrypted data, pushes secure updates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Mechanisms Table -->
+    <div class="row mt-5 mb-4">
+        <div class="col-12">
+            <h2 class="section-title">Security Mechanisms by Layer</h2>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="iot-card">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Encryption</th>
+                                <th>Authentication</th>
+                                <th>Monitoring</th>
+                                <th>Key Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-cyber text-dark">Device Layer</span></td>
+                                <td>AES-256</td>
+                                <td>Secure Boot, Device Auth</td>
+                                <td>-</td>
+                                <td>Hardware Security Module</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-cyber text-dark">Edge Layer</span></td>
+                                <td>RSA-2048, TLS 1.3</td>
+                                <td>MFA, RBAC</td>
+                                <td>IDS/IPS</td>
+                                <td>5ms Processing, Local Decision</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-cyber text-dark">Cloud Layer</span></td>
+                                <td>TLS 1.3, AES-256</td>
+                                <td>IAM, OAuth</td>
+                                <td>ML Analytics</td>
+                                <td>Audit Logs, Secure Updates</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture Benefits -->
+    <div class="row mt-5 mb-4">
+        <div class="col-12">
+            <h2 class="section-title">Architecture Benefits</h2>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="iot-card h-100">
+                <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
+                <h4>Lightweight</h4>
+                <p class="text-secondary">Minimal computational overhead with efficient protocols and edge processing</p>
+                <ul class="small">
+                    <li>43% less latency</li>
+                    <li>Reduced bandwidth</li>
+                    <li>Efficient MQTT/CoAP</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="iot-card h-100">
+                <i class="fas fa-shield-alt fa-3x text-cyber mb-3"></i>
+                <h4>Secure</h4>
+                <p class="text-secondary">Multi-layer defense with encryption at every level</p>
+                <ul class="small">
+                    <li>98.7% attack detection</li>
+                    <li>AES-256 + RSA + TLS</li>
+                    <li>IDS at edge</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="iot-card h-100">
+                <i class="fas fa-microchip fa-3x text-cyber mb-3"></i>
+                <h4>Edge Computing</h4>
+                <p class="text-secondary">Real-time processing at the edge reduces cloud dependency</p>
+                <ul class="small">
+                    <li>5ms processing</li>
+                    <li>Offline operation</li>
+                    <li>Local intelligence</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Specifications -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="iot-card">
+                <h4 class="text-cyber mb-4">Technical Specifications</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <h6>Device Layer</h6>
+                        <p class="small text-secondary">Protocols: MQTT, CoAP<br>Encryption: AES-256<br>Authentication: Secure Boot</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>Edge Layer</h6>
+                        <p class="small text-secondary">Processing: 5ms<br>IDS: Real-time<br>Key Exchange: RSA-2048<br>Access: RBAC + MFA</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>Cloud Layer</h6>
+                        <p class="small text-secondary">Protocol: TLS 1.3<br>Storage: Encrypted<br>Analytics: ML-based<br>Updates: Signed firmware</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>Performance</h6>
+                        <p class="small text-secondary">Latency Reduction: 43%<br>Detection Rate: 98.7%<br>Scalability: High<br>Availability: 99.9%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Architecture page specific styles */
+.architecture-node {
+    transition: all 0.3s ease;
+}
+
+.architecture-node:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 30px rgba(0,255,255,0.2);
+}
+
+.layer-icon-large {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    border-radius: 50%;
+    background: rgba(0,255,255,0.1);
+    margin: 0 auto;
+    transition: 0.3s;
+}
+
+.layer-icon-large:hover {
+    transform: scale(1.1);
+    background: rgba(0,255,255,0.2);
+}
+
+.layer-detail-icon {
+    text-align: center;
+    padding: 20px;
+}
+
+.flow-step {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--dark);
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 auto;
+}
+
+.flow-node {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0,255,255,0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(0,255,255,0.2);
+}
+
+.flow-description {
+    border-left: 4px solid var(--primary);
+}
+
+.badge.bg-cyber {
+    background: var(--primary);
+    color: var(--dark);
+}
+
+.badge.bg-warning {
+    background: #ffd700 !important;
+    color: var(--dark);
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: var(--primary);
+}
+
+.border-cyber {
+    border-color: var(--primary) !important;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .flow-step {
+        margin-bottom: 15px;
+    }
+    
+    .flow-node {
+        margin-bottom: 15px;
+    }
+}
+</style>
+
+<?php include 'footer.php'; ?>
