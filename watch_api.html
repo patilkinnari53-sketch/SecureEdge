@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watch API (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * watch_api.js - JavaScript simulation of watch_api.php
+ * Replaces the PHP/MySQL INSERT with a localStorage write.
+ */
+
+const DB_NAME = 'iot_smart_home';
+const SENSOR_DATA_KEY = DB_NAME + '_sensor_data';
+const WATCH_KEY = DB_NAME + '_watch_data'; // used by the watch_connection page
+
+/* ---------- Storage helpers ---------- */
+function loadSensorData() {
+    const raw = localStorage.getItem(SENSOR_DATA_KEY);
+    return raw ? JSON.parse(raw) : [];
+}
+
+function saveSensorData(rows) {
+    localStorage.setItem(SENSOR_DATA_KEY, JSON.stringify(rows));
+}
+
+/* ---------- The "endpoint" ---------- */
+/**
+ * Simulates: POST watch_api.php
+ *   body: heart_rate=78&steps=3421&battery=84
+ *
+ * Returns the same JSON shape: { success: true, message: 'Watch data received' }
+ * or { success: false, error: '...' }
+ */
+function watchAPI(heart_rate, steps, battery) {
+    try {
+        heart_rate = parseInt(heart_rate, 10) || 0;
+        steps = parseInt(steps, 10) || 0;
+        battery = parseInt(battery, 10) || 0;
+
+        // "INSERT INTO sensor_data (device_id, temperature, motion)
+        //  VALUES (99, ?, ?)" — watch uses device_id 99
+        const sensorData = loadSensorData();
+        const newId = sensorData.length > 0
+            ? Math.max(...sensorData.map(r => r.id)) + 1
+            : 1;
+
+        sensorData.push({
+            id: newId,
+            device_id: 99,
+            heart_rate: heart_rate,
+            temperature: heart_rate,     // kept for PHP schema parity
+            steps: steps,
+            motion: steps > 0 ? 1 : 0,
+            battery: battery,
+            timestamp: new Date().toISOString()
+        });
+
+        // Keep only the last 500 rows to prevent unbounded growth
+        saveSensorData(sensorData.slice(-500));
+
+        // Also mirror to the dedicated watch_data key (used by watch page)
+        const watchData = JSON.parse(localStorage.getItem(WATCH_KEY) || '[]');
+        watchData.push({
+            heart_rate: heart_rate,
+            steps: steps,
+            battery: battery,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem(WATCH_KEY, JSON.stringify(watchData.slice(-100)));
+
+        return { success: true, message: 'Watch data received' };
+
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+/* ---------- Optional: fetch-style shim ---------- */
+/**
+ * Intercepts fetch('watch_api.php', { method: 'POST', body: '...' })
+ * and routes it to watchAPI(). Works with URLSearchParams or plain string bodies.
+ */
+const _originalFetch = window.fetch;
+window.fetch = function(url, options) {
+    if (typeof url === 'string' && url.includes('watch_api.php')) {
+        let body = '';
+        if (options && options.body) {
+            body = options.body.toString();
+        }
+        const params = new URLSearchParams(body);
+        const result = watchAPI(
+            params.get('heart_rate') || 0,
+            params.get('steps') || 0,
+            params.get('battery') || 0
+        );
+        return Promise.resolve(new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+    }
+    return _originalFetch.apply(this, arguments);
+};
+
+/* ---------- Optional: jQuery $.ajax shim ---------- */
+/**
+ * The watch_connection.php page uses $.ajax({ url: 'watch_api.php', method: 'POST', ... })
+ * This shim intercepts those calls and routes them to watchAPI().
+ */
+if (window.jQuery) {
+    const _originalAjax = window.jQuery.ajax;
+    window.jQuery.ajax = function(opts) {
+        if (typeof opts === 'object' && opts.url && opts.url.includes('watch_api.php')) {
+            const data = opts.data || {};
+            const result = watchAPI(
+                data.heart_rate || 0,
+                data.steps || 0,
+                data.battery || 0
+            );
+            if (typeof opts.success === 'function') {
+                opts.success(result);
+            }
+            return { done: function(cb) { if (typeof cb === 'function') cb(result); return this; } };
+        }
+        return _originalAjax.apply(this, arguments);
+    };
+}
+
+/* ---------- Usage examples ---------- */
+
+// Direct call
+console.log(watchAPI(78, 3421, 84));
+// → { success: true, message: 'Watch data received' }
+
+// Via fetch
+fetch('watch_api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'heart_rate=72&steps=1500&battery=90'
+})
+.then(r => r.json())
+.then(data => console.log('Fetch:', data));
+// → Fetch: { success: true, message: 'Watch data received' }
+</script>
+
+</body>
+</html>
