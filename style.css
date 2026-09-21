@@ -1,0 +1,262 @@
+/* ========== SHARED BASE ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #0a0f1f;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    --primary: #00ffff;
+    --secondary: #4169e1;
+    --success: #00ff9d;
+    --danger: #ff4444;
+    --warning: #ffd700;
+    --dark: #0a0f1f;
+    --card-bg: #151f2f;
+}
+
+.text-cyber { color: var(--primary); }
+.text-secondary { color: #9bb8e0 !important; }
+
+/* ========== NAVBAR ========== */
+.navbar {
+    background: rgba(10, 15, 31, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--primary);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    color: #fff !important;
+    margin: 0 15px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary) !important;
+}
+
+/* ========== CARDS ========== */
+.iot-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    transition: 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.iot-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+}
+
+/* ========== STATUS DOTS ========== */
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+}
+
+.status-online {
+    background: var(--success);
+    box-shadow: 0 0 10px var(--success);
+}
+
+.status-offline { background: var(--danger); }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+}
+
+/* ========== BUTTONS ========== */
+.btn-iot {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 25px;
+    border-radius: 25px;
+    transition: 0.3s;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-iot:hover {
+    background: var(--primary);
+    color: var(--dark);
+    transform: scale(1.05);
+}
+
+/* ========== WATCH BAR ========== */
+.watch-bar {
+    background: rgba(0, 255, 255, 0.1);
+    border-bottom: 1px solid var(--primary);
+    padding: 10px 0;
+}
+
+/* ========== TOGGLE SWITCH ========== */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* ========== DATA STREAM ========== */
+.data-stream {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    padding: 15px;
+    font-family: monospace;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* ========== TOAST ========== */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--primary);
+    color: var(--dark);
+    padding: 15px 25px;
+    border-radius: 10px;
+    z-index: 9999;
+    animation: slideIn 0.3s;
+    box-shadow: 0 5px 15px rgba(0,255,255,0.3);
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ========== FOOTER ========== */
+.footer {
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.footer-links li { transition: transform 0.3s ease; }
+.footer-links li:hover { transform: translateX(5px); }
+.footer-links a { transition: color 0.3s ease; }
+.footer-links a:hover { color: var(--primary) !important; }
+
+.stats-mini .progress {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+.stats-mini .progress-bar {
+    border-radius: 10px;
+    background: var(--primary);
+}
+
+.social-links a {
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+.social-links a:hover {
+    transform: translateY(-3px);
+    text-shadow: 0 0 15px var(--primary);
+}
+
+.badge.bg-cyber {
+    background: var(--primary);
+    color: var(--dark);
+    font-weight: 500;
+    padding: 5px 10px;
+}
+
+.layer-indicators .badge { font-size: 0.7rem; }
+
+.footer hr.border-cyber {
+    border-color: var(--primary) !important;
+    opacity: 0.2;
+    transition: opacity 0.3s ease;
+}
+.footer:hover hr.border-cyber { opacity: 0.4; }
+
+.architecture-badges .badge {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+.architecture-badges .badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px var(--primary);
+}
+
+.fa-beat { animation: beat 0.5s ease; }
+
+@keyframes beat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+@media (max-width: 768px) {
+    .footer { text-align: center; }
+    .footer .text-md-end { text-align: center !important; margin-top: 15px; }
+    .layer-indicators { margin: 15px 0; }
+}
