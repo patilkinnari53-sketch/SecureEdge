@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Manager (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * IoTManager - JavaScript simulation of the PHP IoTManager class.
+ * Provides encryption, RSA key exchange, and intrusion detection simulations.
+ */
+class IoTManager {
+    constructor(database) {
+        this.db = database || null;
+    }
+
+    /**
+     * Simulates: encryptData($data)
+     * Base64-encodes the data with a "_encrypted" suffix.
+     * (Note: base64 is NOT real encryption — just a demo, same as the PHP version.)
+     */
+    encryptData(data) {
+        // btoa() is browser equivalent of PHP's base64_encode()
+        return btoa(data + "_encrypted");
+    }
+
+    /**
+     * Simulates: simulateRSAKeyExchange($device_id)
+     * Returns a mock public/private key pair derived from the device ID.
+     */
+    simulateRSAKeyExchange(device_id) {
+        return {
+            public: 'RSA_KEY_' + this._md5(device_id),
+            private: 'PRIV_KEY_' + this._md5(device_id + Math.random())
+        };
+    }
+
+    /**
+     * Simulates: checkForIntrusion($device_data)
+     * Returns a random threat score (1–100). Flags as intrusion if > 90.
+     */
+    checkForIntrusion(device_data) {
+        const threat_score = Math.floor(Math.random() * 100) + 1;
+        if (threat_score > 90) {
+            return { detected: true, score: threat_score };
+        }
+        return { detected: false, score: threat_score };
+    }
+
+    /* -------- Helper: simple MD5-like hash (not cryptographic) -------- */
+    _md5(input) {
+        // Lightweight deterministic hash for demo purposes only.
+        let hash = 0;
+        const str = String(input);
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(16).padStart(8, '0');
+    }
+}
+
+/* -------- Usage example (mirrors PHP usage) -------- */
+
+const iot = new IoTManager(null);
+
+// Encrypt some data
+const encrypted = iot.encryptData("Hello IoT");
+console.log('Encrypted:', encrypted);
+console.log('Decrypted:', atob(encrypted).replace('_encrypted', ''));
+
+// RSA key exchange for device 42
+const keys = iot.simulateRSAKeyExchange(42);
+console.log('Public key:', keys.public);
+console.log('Private key:', keys.private);
+
+// Intrusion check
+const check = iot.checkForIntrusion({ temp: 22.5, motion: true });
+console.log('Intrusion detected?', check.detected, '| Threat score:', check.score);
+</script>
+
+</body>
+</html>
