@@ -1,26 +1,165 @@
-<?php
-$pageTitle = "Three-Layer Edge Architecture - Secure IoT Smart Home";
-include 'header.php';
-require_once 'database.php';
-
-$db = new IoTDatabase();
-$conn = $db->connect();
-
-// Get device counts for each layer (for demonstration)
-$total_devices = $conn->query("SELECT COUNT(*) FROM devices")->fetchColumn();
-$device_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('sensor', 'light', 'lock')")->fetchColumn();
-$edge_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('camera', 'thermostat', 'gateway')")->fetchColumn();
-$cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_type IN ('plug', 'hub')")->fetchColumn();
-?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three-Layer Edge Architecture - Secure IoT Smart Home</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0b0f1c;
+            --card-bg: #141b2b;
+            --danger: #ff4d6d;
+            --warning: #ffb347;
+            --secondary: #9bb8e0;
+        }
+        body {
+            background: #0b0f1c;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        .text-secondary {
+            color: #9bb8e0 !important;
+        }
+        .iot-card {
+            background: #141b2b;
+            border: 1px solid #2a3a55;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 255, 255, 0.08);
+        }
+        .badge.bg-cyber {
+            background: #00ffff;
+            color: #0b0f1c;
+            font-weight: 500;
+        }
+        .badge.bg-warning {
+            background: #ffd700 !important;
+            color: #0b0f1c;
+        }
+        .border-cyber {
+            border-color: #00ffff !important;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: #00ffff;
+        }
+        .architecture-node {
+            transition: all 0.3s ease;
+        }
+        .architecture-node:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0,255,255,0.2);
+        }
+        .layer-icon-large {
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(0,255,255,0.1);
+            margin: 0 auto;
+            transition: 0.3s;
+        }
+        .layer-icon-large:hover {
+            transform: scale(1.1);
+            background: rgba(0,255,255,0.2);
+        }
+        .layer-detail-icon {
+            text-align: center;
+            padding: 20px;
+        }
+        .flow-step {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            background: #00ffff;
+            color: #0b0f1c;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+        }
+        .flow-node {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0,255,255,0.2);
+        }
+        .flow-description {
+            border-left: 4px solid #00ffff;
+        }
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e0e0e0;
+            --bs-table-border-color: #2a3a55;
+        }
+        .table-dark thead th {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .flow-step {
+                margin-bottom: 15px;
+            }
+            .flow-node {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
 
 <div class="container">
     <!-- Page Header -->
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h1 class="display-3 fw-bold mb-4">
+            <h1 class="display-3 fw-bold mb-4" data-aos="fade-up">
                 <span class="text-cyber">Three-Layer Edge</span> Architecture
             </h1>
-            <p class="lead text-secondary mx-auto" style="max-width: 800px;">
+            <p class="lead text-secondary mx-auto" style="max-width: 800px;" data-aos="fade-up" data-aos-delay="100">
                 A secure and lightweight multi-layer architecture combining device, edge, and cloud computing 
                 for IoT-based smart home systems
             </p>
@@ -30,7 +169,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     <!-- Architecture Overview Diagram -->
     <div class="row mb-5">
         <div class="col-12">
-            <div class="iot-card p-5">
+            <div class="iot-card p-5" data-aos="fade-up">
                 <div class="row align-items-center text-center g-4">
                     <!-- Device Layer -->
                     <div class="col-md-3">
@@ -45,7 +184,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
                                 <span class="badge bg-cyber text-dark">Secure Boot</span>
                             </div>
                             <div class="mt-3">
-                                <span class="display-6 text-cyber"><?php echo $device_layer_count; ?></span>
+                                <span class="display-6 text-cyber">5</span>
                                 <small class="text-secondary">devices</small>
                             </div>
                         </div>
@@ -72,7 +211,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
                                 <span class="badge bg-cyber text-dark">MFA</span>
                             </div>
                             <div class="mt-3">
-                                <span class="display-6 text-cyber"><?php echo $edge_layer_count; ?></span>
+                                <span class="display-6 text-cyber">2</span>
                                 <small class="text-secondary">devices</small>
                             </div>
                             <div class="mt-2">
@@ -100,7 +239,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
                                 <span class="badge bg-cyber text-dark">Encrypted Storage</span>
                             </div>
                             <div class="mt-3">
-                                <span class="display-6 text-cyber"><?php echo $cloud_layer_count; ?></span>
+                                <span class="display-6 text-cyber">1</span>
                                 <small class="text-secondary">devices</small>
                             </div>
                         </div>
@@ -111,9 +250,9 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     </div>
 
     <!-- Architecture Highlights -->
-    <div class="row mb-5">
+    <div class="row mb-5 g-4">
         <div class="col-md-3">
-            <div class="iot-card text-center">
+            <div class="iot-card text-center" data-aos="fade-up">
                 <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
                 <h2 class="text-cyber">43%</h2>
                 <p class="text-secondary">Latency Reduction</p>
@@ -121,7 +260,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
             </div>
         </div>
         <div class="col-md-3">
-            <div class="iot-card text-center">
+            <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="100">
                 <i class="fas fa-shield-virus fa-3x text-cyber mb-3"></i>
                 <h2 class="text-cyber">98.7%</h2>
                 <p class="text-secondary">Attack Detection</p>
@@ -129,7 +268,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
             </div>
         </div>
         <div class="col-md-3">
-            <div class="iot-card text-center">
+            <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="200">
                 <i class="fas fa-layer-group fa-3x text-cyber mb-3"></i>
                 <h2 class="text-cyber">3</h2>
                 <p class="text-secondary">Security Layers</p>
@@ -137,7 +276,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
             </div>
         </div>
         <div class="col-md-3">
-            <div class="iot-card text-center">
+            <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="300">
                 <i class="fas fa-clock fa-3x text-cyber mb-3"></i>
                 <h2 class="text-cyber">5ms</h2>
                 <p class="text-secondary">Edge Processing</p>
@@ -156,7 +295,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     <!-- Layer 1: Device Layer -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="iot-card">
+            <div class="iot-card" data-aos="fade-up">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="layer-detail-icon">
@@ -207,7 +346,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     <!-- Layer 2: Edge Layer (Core) -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="iot-card border-cyber" style="border-width: 2px;">
+            <div class="iot-card border-cyber" style="border-width: 2px;" data-aos="fade-up">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="layer-detail-icon">
@@ -270,7 +409,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     <!-- Layer 3: Cloud Layer -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="iot-card">
+            <div class="iot-card" data-aos="fade-up">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="layer-detail-icon">
@@ -328,7 +467,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
 
     <div class="row mb-5">
         <div class="col-12">
-            <div class="iot-card p-4">
+            <div class="iot-card p-4" data-aos="fade-up">
                 <div class="flow-diagram">
                     <!-- Step 1 -->
                     <div class="row align-items-center mb-4">
@@ -423,7 +562,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
 
     <div class="row mb-5">
         <div class="col-12">
-            <div class="iot-card">
+            <div class="iot-card" data-aos="fade-up">
                 <div class="table-responsive">
                     <table class="table table-dark table-hover">
                         <thead>
@@ -473,7 +612,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
 
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="iot-card h-100">
+            <div class="iot-card h-100" data-aos="fade-up">
                 <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
                 <h4>Lightweight</h4>
                 <p class="text-secondary">Minimal computational overhead with efficient protocols and edge processing</p>
@@ -485,7 +624,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
             </div>
         </div>
         <div class="col-md-4">
-            <div class="iot-card h-100">
+            <div class="iot-card h-100" data-aos="fade-up" data-aos-delay="100">
                 <i class="fas fa-shield-alt fa-3x text-cyber mb-3"></i>
                 <h4>Secure</h4>
                 <p class="text-secondary">Multi-layer defense with encryption at every level</p>
@@ -497,7 +636,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
             </div>
         </div>
         <div class="col-md-4">
-            <div class="iot-card h-100">
+            <div class="iot-card h-100" data-aos="fade-up" data-aos-delay="200">
                 <i class="fas fa-microchip fa-3x text-cyber mb-3"></i>
                 <h4>Edge Computing</h4>
                 <p class="text-secondary">Real-time processing at the edge reduces cloud dependency</p>
@@ -513,7 +652,7 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     <!-- Technical Specifications -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="iot-card">
+            <div class="iot-card" data-aos="fade-up">
                 <h4 class="text-cyber mb-4">Technical Specifications</h4>
                 <div class="row">
                     <div class="col-md-3">
@@ -538,108 +677,18 @@ $cloud_layer_count = $conn->query("SELECT COUNT(*) FROM devices WHERE device_typ
     </div>
 </div>
 
-<style>
-/* Architecture page specific styles */
-.architecture-node {
-    transition: all 0.3s ease;
-}
+<!-- Footer placeholder -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; 2025
+</div>
 
-.architecture-node:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 30px rgba(0,255,255,0.2);
-}
+<!-- AOS init -->
+<script>
+    AOS.init({ duration: 800, once: true });
+</script>
 
-.layer-icon-large {
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-    border-radius: 50%;
-    background: rgba(0,255,255,0.1);
-    margin: 0 auto;
-    transition: 0.3s;
-}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-.layer-icon-large:hover {
-    transform: scale(1.1);
-    background: rgba(0,255,255,0.2);
-}
-
-.layer-detail-icon {
-    text-align: center;
-    padding: 20px;
-}
-
-.flow-step {
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    border-radius: 50%;
-    background: var(--primary);
-    color: var(--dark);
-    font-weight: bold;
-    font-size: 1.2rem;
-    margin: 0 auto;
-}
-
-.flow-node {
-    text-align: center;
-    padding: 15px;
-    background: rgba(0,255,255,0.05);
-    border-radius: 10px;
-    border: 1px solid rgba(0,255,255,0.2);
-}
-
-.flow-description {
-    border-left: 4px solid var(--primary);
-}
-
-.badge.bg-cyber {
-    background: var(--primary);
-    color: var(--dark);
-}
-
-.badge.bg-warning {
-    background: #ffd700 !important;
-    color: var(--dark);
-}
-
-.section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    position: relative;
-    display: inline-block;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 60%;
-    height: 3px;
-    background: var(--primary);
-}
-
-.border-cyber {
-    border-color: var(--primary) !important;
-}
-
-.table td {
-    vertical-align: middle;
-}
-
-@media (max-width: 768px) {
-    .flow-step {
-        margin-bottom: 15px;
-    }
-    
-    .flow-node {
-        margin-bottom: 15px;
-    }
-}
-</style>
-
-<?php include 'footer.php'; ?>
+</body>
+</html>
