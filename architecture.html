@@ -8,148 +8,263 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- AOS (Animate On Scroll) -->
+    <!-- AOS CSS + JS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Shared styles (header + footer + cards + all shared CSS) -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Shared scripts + include loader -->
-    <script>
-function connectWatch() {
-    const s = document.getElementById('watchStatus');
-    if (!s) return;
-    if (s.textContent.includes('Disconnected')) {
-        s.textContent = 'Smart Watch: Connected';
-        s.classList.remove('text-secondary');
-        s.classList.add('text-cyber');
-    } else {
-        s.textContent = 'Smart Watch: Disconnected';
-        s.classList.add('text-secondary');
-        s.classList.remove('text-cyber');
-    }
-}
-</script>
-    <script src="app.js" defer></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0b0f1c;
+            --card-bg: #141b2b;
+            --danger: #ff4d6d;
+            --warning: #ffb347;
+            --secondary: #9bb8e0;
+            --success: #00ff9d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b0f1c;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber { color: #00ffff; text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); }
+        .text-secondary { color: #9bb8e0 !important; }
+
+        /* ========== NAVBAR ========== */
         .navbar {
-    background: rgba(10, 15, 31, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 2px solid #00ffff;
-    padding: 15px 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-.navbar-brand {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(45deg, #00ffff, #4169e1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.nav-link {
-    color: #fff !important;
-    margin: 0 15px;
-    font-weight: 500;
-}
-.nav-link:hover, .nav-link.active {
-    color: #00ffff !important;
-}
-.watch-bar {
-    background: rgba(0, 255, 255, 0.1);
-    border-bottom: 1px solid #00ffff;
-    padding: 10px 0;
-}
+            background: rgba(10, 15, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ffff;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-link {
+            color: #fff !important;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-link:hover, .nav-link.active { color: #00ffff !important; }
 
-        /* ========== FOOTER STYLES ========== */
-.footer {
-    position: relative;
-    overflow: hidden;
-}
+        .watch-bar {
+            background: rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #00ffff;
+            padding: 10px 0;
+        }
 
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ffff, transparent);
-    animation: scan 8s linear infinite;
-}
+        /* ========== CARDS ========== */
+        .iot-card {
+            background: #141b2b;
+            border: 1px solid #2a3a55;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 255, 255, 0.08);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            border-radius: 30px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+        .btn-iot:hover {
+            background: #00ffff;
+            color: #0b0f1c;
+            box-shadow: 0 0 18px rgba(0, 255, 255, 0.5);
+        }
+        .badge.bg-cyber { background: #00ffff; color: #0b0f1c; font-weight: 500; }
+        .badge.bg-warning { background: #ffd700 !important; color: #0b0f1c; }
+        .border-cyber { border-color: #00ffff !important; }
 
-@keyframes scan {
-    0%   { left: -100%; }
-    50%  { left: 100%; }
-    100% { left: 100%; }
-}
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: #00ffff;
+        }
 
-.footer-links li { transition: transform 0.3s ease; }
-.footer-links li:hover { transform: translateX(5px); }
+        /* ========== ARCHITECTURE PAGE ========== */
+        .architecture-node { transition: all 0.3s ease; }
+        .architecture-node:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0,255,255,0.2);
+        }
+        .layer-icon-large {
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(0,255,255,0.1);
+            margin: 0 auto;
+            transition: 0.3s;
+        }
+        .layer-icon-large:hover {
+            transform: scale(1.1);
+            background: rgba(0,255,255,0.2);
+        }
+        .layer-detail-icon { text-align: center; padding: 20px; }
+        .flow-step {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            background: #00ffff;
+            color: #0b0f1c;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+        }
+        .flow-node {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0,255,255,0.2);
+        }
+        .flow-description { border-left: 4px solid #00ffff; }
 
-.footer-links a { transition: color 0.3s ease; }
-.footer-links a:hover { color: #00ffff !important; }
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e0e0e0;
+            --bs-table-border-color: #2a3a55;
+        }
+        .table-dark thead th { color: #00ffff; border-bottom-color: #00ffff; }
+        .table td { vertical-align: middle; }
 
-.stats-mini .progress {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-.stats-mini .progress-bar {
-    border-radius: 10px;
-    background: #00ffff;
-}
+        /* ========== STATUS DOTS ========== */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        .status-online {
+            background: #00ff9d;
+            box-shadow: 0 0 10px #00ff9d;
+        }
+        .status-offline { background: #ff4d6d; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
 
-.social-links a {
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    display: inline-block;
-}
-.social-links a:hover {
-    transform: translateY(-3px);
-    text-shadow: 0 0 15px #00ffff;
-}
+        /* ========== FOOTER ========== */
+        .footer { position: relative; overflow: hidden; }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scan 8s linear infinite;
+        }
+        @keyframes scan {
+            0%   { left: -100%; }
+            50%  { left: 100%; }
+            100% { left: 100%; }
+        }
+        .footer-links li { transition: transform 0.3s ease; }
+        .footer-links li:hover { transform: translateX(5px); }
+        .footer-links a { transition: color 0.3s ease; }
+        .footer-links a:hover { color: #00ffff !important; }
 
-.badge.bg-cyber {
-    background: #00ffff;
-    color: #0a0f1f;
-    font-weight: 500;
-    padding: 5px 10px;
-}
+        .stats-mini .progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .stats-mini .progress-bar {
+            border-radius: 10px;
+            background: #00ffff;
+        }
+        .social-links a {
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .social-links a:hover {
+            transform: translateY(-3px);
+            text-shadow: 0 0 15px #00ffff;
+        }
+        .footer hr.border-cyber {
+            border-color: #00ffff !important;
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
+        }
+        .footer:hover hr.border-cyber { opacity: 0.4; }
+        .architecture-badges .badge {
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .architecture-badges .badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .fa-beat { animation: beat 0.5s ease; }
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.2); }
+        }
 
-.layer-indicators .badge { font-size: 0.7rem; }
+        @media (max-width: 768px) {
+            .flow-step { margin-bottom: 15px; }
+            .flow-node { margin-bottom: 15px; }
+            .footer { text-align: center; }
+            .footer .text-md-end { text-align: center !important; margin-top: 15px; }
+            .layer-indicators { margin: 15px 0; }
+        }
 
-.footer hr.border-cyber {
-    border-color: #00ffff !important;
-    opacity: 0.2;
-    transition: opacity 0.3s ease;
-}
-.footer:hover hr.border-cyber { opacity: 0.4; }
-
-.architecture-badges .badge {
-    transition: all 0.3s ease;
-    cursor: default;
-}
-.architecture-badges .badge:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px #00ffff;
-}
-
-.fa-beat { animation: beat 0.5s ease; }
-@keyframes beat {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.2); }
-}
-
-@media (max-width: 768px) {
-    .footer { text-align: center; }
-    .footer .text-md-end { text-align: center !important; margin-top: 15px; }
-    .layer-indicators { margin: 15px 0; }
-}
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00ffff;
+            color: #0a0f1f;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 9999;
+            box-shadow: 0 5px 15px rgba(0,255,255,0.3);
+        }
     </style>
 </head>
 <body>
 
-        <!-- ========== HEADER ========== -->
+    <!-- ========== HEADER ========== -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="index.html">
@@ -190,7 +305,7 @@ function connectWatch() {
 
     <main>
 
-    <div class="container">
+    <div class="container py-4">
         <!-- Page Header -->
         <div class="row mb-5">
             <div class="col-12 text-center">
@@ -715,17 +830,17 @@ function connectWatch() {
         </div>
     </div>
 
-        <!-- ========== FOOTER ========== -->
     </main>
 
-    <footer class="footer mt-5 py-5" style="background: linear-gradient(180deg, var(--card-bg) 0%, #0a0f1f 100%); border-top: 3px solid var(--primary);">
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer mt-5 py-5" style="background: linear-gradient(180deg, #141b2b 0%, #0a0f1f 100%); border-top: 3px solid #00ffff;">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-about">
                         <h4 class="text-cyber mb-4">
                             <i class="fas fa-shield-alt me-2"></i>
-                            EdgeSecure<span style="color: var(--primary);">Arch</span>
+                            EdgeSecure<span style="color: #00ffff;">Arch</span>
                         </h4>
                         <p class="text-secondary mb-3">
                             A Secure and Lightweight Multi-Layer Architecture for IoT-Based Smart Home Systems 
@@ -767,27 +882,27 @@ function connectWatch() {
                             <span class="text-cyber fw-bold">43%</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 43%"></div>
+                            <div class="progress-bar" style="width: 43%; background: #00ffff;"></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-secondary">Attack Detection</span>
                             <span class="text-cyber fw-bold">98.7%</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 98.7%"></div>
+                            <div class="progress-bar" style="width: 98.7%; background: #00ffff;"></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-secondary">Edge Processing</span>
                             <span class="text-cyber fw-bold">5ms</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 100%"></div>
+                            <div class="progress-bar" style="width: 100%; background: #00ffff;"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <hr class="border-cyber opacity-25 my-4">
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
 
             <div class="row align-items-center g-3">
                 <div class="col-md-4">
@@ -814,7 +929,7 @@ function connectWatch() {
                 </div>
             </div>
 
-            <hr class="border-cyber opacity-25 my-4">
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
 
             <div class="row">
                 <div class="col-md-6">
@@ -846,23 +961,58 @@ function connectWatch() {
         </div>
     </footer>
 
-    <!-- Footer live clock + year (in case app.js isn't loaded) -->
+    <!-- ========== SCRIPTS ========== -->
     <script>
-        (function() {
-            function updateFooterClock() {
-                const t = new Date().toUTCString().split(' ')[4];
-                document.querySelectorAll('.live-time').forEach(el => el.textContent = t);
+        // Watch toggle
+        function connectWatch() {
+            const s = document.getElementById('watchStatus');
+            if (!s) return;
+            if (s.textContent.includes('Disconnected')) {
+                s.textContent = 'Smart Watch: Connected';
+                s.classList.remove('text-secondary');
+                s.classList.add('text-cyber');
+            } else {
+                s.textContent = 'Smart Watch: Disconnected';
+                s.classList.add('text-secondary');
+                s.classList.remove('text-cyber');
             }
-            updateFooterClock();
-            setInterval(updateFooterClock, 1000);
+        }
 
-            const yearEl = document.getElementById('footerYear');
-            if (yearEl) yearEl.textContent = new Date().getFullYear();
+        // Footer clock
+        function updateFooterClock() {
+            const t = new Date().toUTCString().split(' ')[4];
+            document.querySelectorAll('.live-time').forEach(function(el) {
+                el.textContent = t;
+            });
+        }
+        updateFooterClock();
+        setInterval(updateFooterClock, 1000);
+
+        // Footer year
+        const yearEl = document.getElementById('footerYear');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        // Active nav link
+        (function() {
+            const current = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('#mainNav .nav-link').forEach(function(link) {
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
         })();
-    </script>
-    <!-- AOS init -->
-    <script>
-        AOS.init({ duration: 800, once: true });
+
+        // AOS init with fallback (makes everything visible if AOS fails)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({ duration: 800, once: true });
+            } else {
+                document.querySelectorAll('[data-aos]').forEach(function(el) {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                });
+            }
+        });
     </script>
 
     <!-- Bootstrap JS -->
