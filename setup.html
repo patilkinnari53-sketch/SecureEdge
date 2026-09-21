@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IoT System Setup</title>
+    <style>
+        body {
+            background: #0a0f1f;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 50px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #151f2f;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #00ffff;
+        }
+        h1 { color: #00ffff; }
+        .success { color: #00ff9d; }
+        .error { color: #ff4444; }
+        .btn {
+            background: #00ffff;
+            color: #0a0f1f;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 IoT System Setup Wizard</h1>
+        
+        <div id="setupOutput"></div>
+        
+        <div id="setupForm">
+            <p>This will set up your IoT system automatically:</p>
+            <ul>
+                <li>Create database: iot_smart_home</li>
+                <li>Create all required tables</li>
+                <li>Add sample devices</li>
+            </ul>
+            
+            <button type="button" class="btn" onclick="runSetup()">🚀 Run Setup Now</button>
+            <a href="index.php" class="btn">Skip to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+    /**
+     * Setup wizard — replaces the PHP/MySQL setup with localStorage initialization.
+     * Creates the same three "tables" (devices, security_events, sensor_data)
+     * and seeds them with the same sample data.
+     */
+
+    const DB_NAME = 'iot_smart_home';
+
+    function runSetup() {
+        const output = document.getElementById('setupOutput');
+        const form = document.getElementById('setupForm');
+        output.innerHTML = '';
+
+        try {
+            // "DROP DATABASE IF EXISTS" + "CREATE DATABASE"
+            // We clear all related localStorage keys to start fresh.
+            localStorage.removeItem(DB_NAME + '_devices');
+            localStorage.removeItem(DB_NAME + '_security_events');
+            localStorage.removeItem(DB_NAME + '_sensor_data');
+            localStorage.removeItem(DB_NAME + '_settings');
+            localStorage.removeItem(DB_NAME + '_watch_connections');
+            output.innerHTML += "<p class='success'>✅ Database created (localStorage)</p>";
+
+            // "CREATE TABLE devices"
+            const devices = [
+                { id: 1, device_name: 'Living Room Light',   device_type: 'light',      status: 1, value: 0,    room: 'Living Room', ip_address: '192.168.1.101', mac_address: 'AA:BB:CC:DD:EE:01', last_seen: new Date().toISOString() },
+                { id: 2, device_name: 'Smart Thermostat',    device_type: 'thermostat', status: 1, value: 22.5, room: 'Living Room', ip_address: '192.168.1.102', mac_address: 'AA:BB:CC:DD:EE:02', last_seen: new Date().toISOString() },
+                { id: 3, device_name: 'Front Door Camera',   device_type: 'camera',     status: 1, value: 0,    room: 'Entrance',    ip_address: '192.168.1.103', mac_address: 'AA:BB:CC:DD:EE:03', last_seen: new Date().toISOString() },
+                { id: 4, device_name: 'Main Door Lock',      device_type: 'lock',       status: 1, value: 1,    room: 'Main Door',   ip_address: '192.168.1.104', mac_address: 'AA:BB:CC:DD:EE:04', last_seen: new Date().toISOString() }
+            ];
+
+            // "CREATE TABLE security_events"
+            const securityEvents = [];
+
+            // "CREATE TABLE sensor_data"
+            const sensorData = [];
+
+            // "INSERT INTO devices ..." — same 4 sample devices
+            localStorage.setItem(DB_NAME + '_devices', JSON.stringify(devices));
+            localStorage.setItem(DB_NAME + '_security_events', JSON.stringify(securityEvents));
+            localStorage.setItem(DB_NAME + '_sensor_data', JSON.stringify(sensorData));
+            output.innerHTML += "<p class='success'>✅ Tables created</p>";
+            output.innerHTML += "<p class='success'>✅ Sample devices added</p>";
+
+            // Done
+            output.innerHTML += "<h3 class='success'>✅ Setup Complete!</h3>";
+            output.innerHTML += "<a href='index.php' class='btn'>Go to Dashboard</a>";
+            form.style.display = 'none';
+
+        } catch (e) {
+            output.innerHTML = "<p class='error'>❌ Error: " + e.message + "</p>";
+        }
+    }
+    </script>
+</body>
+</html>
