@@ -8,139 +8,226 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- AOS (Animate On Scroll) -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Shared styles (header + footer + cards + all shared CSS) -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Shared scripts + include loader -->
-    <script src="app.js" defer></script>
-   <script> function logout() {
-    if (confirm('Log out of IoT SecureEdge?')) {
-        sessionStorage.removeItem('iot_smart_home_current_user');
-        window.location.href = 'login.html';
-    }
-} </script>
+
     <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0b0f1c;
+            --card-bg: #141b2b;
+            --danger: #ff4d6d;
+            --warning: #ffb347;
+            --secondary: #9bb8e0;
+            --success: #00ff9d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b0f1c;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber { color: #00ffff; text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); }
+        .text-secondary { color: #9bb8e0 !important; }
+
+        /* ========== NAVBAR ========== */
         .navbar {
-    background: rgba(10, 15, 31, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 2px solid #00ffff;
-    padding: 15px 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-.navbar-brand {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(45deg, #00ffff, #4169e1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.nav-link {
-    color: #fff !important;
-    margin: 0 15px;
-    font-weight: 500;
-}
-.nav-link:hover, .nav-link.active {
-    color: #00ffff !important;
-}
-.watch-bar {
-    background: rgba(0, 255, 255, 0.1);
-    border-bottom: 1px solid #00ffff;
-    padding: 10px 0;
-}
+            background: rgba(10, 15, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ffff;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-link {
+            color: #fff !important;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-link:hover, .nav-link.active { color: #00ffff !important; }
+        .watch-bar {
+            background: rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #00ffff;
+            padding: 10px 0;
+        }
 
-        /* ========== FOOTER STYLES ========== */
-.footer {
-    position: relative;
-    overflow: hidden;
-}
+        /* ========== CARDS ========== */
+        .iot-card {
+            background: #141b2b;
+            border: 1px solid #2a3a55;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 255, 255, 0.08);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            border-radius: 30px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+        .btn-iot:hover {
+            background: #00ffff;
+            color: #0b0f1c;
+            box-shadow: 0 0 18px rgba(0, 255, 255, 0.5);
+        }
+        .badge.bg-cyber { background: #00ffff; color: #0b0f1c; font-weight: 500; }
+        .border-cyber { border-color: #00ffff !important; }
 
-.footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ffff, transparent);
-    animation: scan 8s linear infinite;
-}
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: #00ffff;
+        }
 
-@keyframes scan {
-    0%   { left: -100%; }
-    50%  { left: 100%; }
-    100% { left: 100%; }
-}
+        /* ========== LAYER ICONS ========== */
+        .layer-icon {
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.1);
+            margin: 0 auto;
+            transition: 0.3s;
+        }
+        .layer-icon:hover { transform: scale(1.1); background: rgba(0, 255, 255, 0.2); }
 
-.footer-links li { transition: transform 0.3s ease; }
-.footer-links li:hover { transform: translateX(5px); }
+        /* ========== STATUS DOTS ========== */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        .status-online { background: #00ff9d; box-shadow: 0 0 10px #00ff9d; }
+        .status-offline { background: #ff4d6d; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
 
-.footer-links a { transition: color 0.3s ease; }
-.footer-links a:hover { color: #00ffff !important; }
+        /* ========== SWITCH ========== */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            vertical-align: middle;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2a3a55;
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #e0e0e0;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #00ffff; }
+        input:checked + .slider:before { transform: translateX(22px); background-color: #0b0f1c; }
 
-.stats-mini .progress {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-.stats-mini .progress-bar {
-    border-radius: 10px;
-    background: #00ffff;
-}
+        /* ========== DATA STREAM ========== */
+        .data-stream {
+            background: #0a0f18;
+            border: 1px solid #2a3a55;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #9bb8e0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .progress { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .progress-bar.bg-cyber { background: #00ffff; border-radius: 10px; }
 
-.social-links a {
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    display: inline-block;
-}
-.social-links a:hover {
-    transform: translateY(-3px);
-    text-shadow: 0 0 15px #00ffff;
-}
+        .min-vh-75 { min-height: 75vh; }
 
-.badge.bg-cyber {
-    background: #00ffff;
-    color: #0a0f1f;
-    font-weight: 500;
-    padding: 5px 10px;
-}
+        /* ========== FOOTER ========== */
+        .footer { position: relative; overflow: hidden; }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scan 8s linear infinite;
+        }
+        @keyframes scan {
+            0%   { left: -100%; }
+            50%  { left: 100%; }
+            100% { left: 100%; }
+        }
+        .footer-links li { transition: transform 0.3s ease; }
+        .footer-links li:hover { transform: translateX(5px); }
+        .footer-links a { transition: color 0.3s ease; }
+        .footer-links a:hover { color: #00ffff !important; }
+        .stats-mini .progress { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .stats-mini .progress-bar { border-radius: 10px; background: #00ffff; }
+        .social-links a {
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .social-links a:hover { transform: translateY(-3px); text-shadow: 0 0 15px #00ffff; }
+        .badge.bg-cyber { background: #00ffff; color: #0b0f1c; font-weight: 500; padding: 5px 10px; }
+        .architecture-badges .badge { transition: all 0.3s ease; cursor: default; }
+        .architecture-badges .badge:hover { transform: scale(1.1); box-shadow: 0 0 15px #00ffff; }
 
-.layer-indicators .badge { font-size: 0.7rem; }
-
-.footer hr.border-cyber {
-    border-color: #00ffff !important;
-    opacity: 0.2;
-    transition: opacity 0.3s ease;
-}
-.footer:hover hr.border-cyber { opacity: 0.4; }
-
-.architecture-badges .badge {
-    transition: all 0.3s ease;
-    cursor: default;
-}
-.architecture-badges .badge:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px #00ffff;
-}
-
-.fa-beat { animation: beat 0.5s ease; }
-@keyframes beat {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.2); }
-}
-
-@media (max-width: 768px) {
-    .footer { text-align: center; }
-    .footer .text-md-end { text-align: center !important; margin-top: 15px; }
-    .layer-indicators { margin: 15px 0; }
-}
+        @media (max-width: 768px) {
+            .footer { text-align: center; }
+            .footer .text-md-end { text-align: center !important; margin-top: 15px; }
+            .layer-indicators { margin: 15px 0; }
+        }
     </style>
 </head>
 <body>
-    
 
-       <!-- ========== HEADER ========== -->
+    <!-- ========== HEADER ========== -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="index.html">
@@ -159,10 +246,10 @@
                     <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
                     <li class="nav-item"><a class="nav-link" href="watch_connection.html">My Watch</a></li>
                     <li class="nav-item">
-    <a class="nav-link" href="#" onclick="logout(); return false;" title="Logout">
-        <i class="fas fa-sign-out-alt"></i>
-    </a>
-</li>
+                        <a class="nav-link" href="#" onclick="logout(); return false;" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -185,6 +272,7 @@
     </div>
 
     <main>
+
     <div class="container">
         <!-- ===== HERO SECTION ===== -->
         <div class="row min-vh-75 align-items-center py-5">
@@ -208,8 +296,6 @@
                         <i class="fas fa-shield-alt me-2"></i>Security Mechanisms
                     </a>
                 </div>
-
-                <!-- Security Feature Badges -->
                 <div class="d-flex flex-wrap gap-2">
                     <span class="badge bg-cyber text-dark p-2"><i class="fas fa-lock me-1"></i>AES-256</span>
                     <span class="badge bg-cyber text-dark p-2"><i class="fas fa-key me-1"></i>RSA Key Exchange</span>
@@ -239,7 +325,6 @@
                 <p class="text-secondary mb-4">Our proposed secure and lightweight architecture</p>
             </div>
 
-            <!-- Layer 1: Device Layer -->
             <div class="col-md-4">
                 <div class="iot-card text-center h-100">
                     <div class="layer-icon mb-3">
@@ -259,7 +344,6 @@
                 </div>
             </div>
 
-            <!-- Layer 2: Edge Layer (Core) -->
             <div class="col-md-4">
                 <div class="iot-card text-center h-100 border-cyber" style="border-width: 2px;">
                     <div class="layer-icon mb-3" style="background: rgba(0,255,255,0.2);">
@@ -280,7 +364,6 @@
                 </div>
             </div>
 
-            <!-- Layer 3: Cloud Layer -->
             <div class="col-md-4">
                 <div class="iot-card text-center h-100">
                     <div class="layer-icon mb-3">
@@ -382,7 +465,6 @@
                 <p class="text-secondary mb-4">Secure multi-layer protected devices</p>
             </div>
 
-            <!-- Static device cards (8 devices) -->
             <div class="col-md-3 mb-3">
                 <div class="iot-card" id="device-1">
                     <div class="d-flex justify-content-between align-items-start">
@@ -545,27 +627,27 @@
                         Edge IDS Monitoring
                     </h4>
                     <div class="data-stream" style="max-height: 200px;">
-                        <div class="mb-2 p-2" style="border-left: 3px solid var(--warning);">
+                        <div class="mb-2 p-2" style="border-left: 3px solid #ffb347;">
                             <small class="text-secondary">2025-03-16 14:23:11</small>
                             <p class="mb-0 small"><i class="fas fa-shield-alt text-cyber me-2"></i>Unauthorized access attempt blocked</p>
                             <small class="text-cyber">MEDIUM severity</small>
                         </div>
-                        <div class="mb-2 p-2" style="border-left: 3px solid var(--danger);">
+                        <div class="mb-2 p-2" style="border-left: 3px solid #ff4d6d;">
                             <small class="text-secondary">2025-03-16 13:05:42</small>
                             <p class="mb-0 small"><i class="fas fa-shield-alt text-cyber me-2"></i>Malformed packet detected and dropped</p>
                             <small class="text-cyber">HIGH severity</small>
                         </div>
-                        <div class="mb-2 p-2" style="border-left: 3px solid var(--primary);">
+                        <div class="mb-2 p-2" style="border-left: 3px solid #00ffff;">
                             <small class="text-secondary">2025-03-16 11:47:03</small>
                             <p class="mb-0 small"><i class="fas fa-shield-alt text-cyber me-2"></i>Firmware integrity check passed</p>
                             <small class="text-cyber">LOW severity</small>
                         </div>
-                        <div class="mb-2 p-2" style="border-left: 3px solid var(--warning);">
+                        <div class="mb-2 p-2" style="border-left: 3px solid #ffb347;">
                             <small class="text-secondary">2025-03-16 09:12:38</small>
                             <p class="mb-0 small"><i class="fas fa-shield-alt text-cyber me-2"></i>Repeated login failures from unknown IP</p>
                             <small class="text-cyber">MEDIUM severity</small>
                         </div>
-                        <div class="mb-2 p-2" style="border-left: 3px solid var(--primary);">
+                        <div class="mb-2 p-2" style="border-left: 3px solid #00ffff;">
                             <small class="text-secondary">2025-03-16 07:30:55</small>
                             <p class="mb-0 small"><i class="fas fa-shield-alt text-cyber me-2"></i>Edge gateway heartbeat normal</p>
                             <small class="text-cyber">LOW severity</small>
@@ -628,7 +710,7 @@
         <!-- ===== ARCHITECTURE HIGHLIGHTS ===== -->
         <div class="row my-5">
             <div class="col-12">
-                <div class="iot-card p-4" style="background: linear-gradient(145deg, var(--card-bg), #1a2639);">
+                <div class="iot-card p-4" style="background: linear-gradient(145deg, #141b2b, #1a2639);">
                     <h3 class="text-center text-cyber mb-4">✨ Key Architecture Features</h3>
                     <div class="row text-center">
                         <div class="col-md-3">
@@ -657,17 +739,17 @@
         </div>
     </div>
 
-       <!-- ========== FOOTER ========== -->
     </main>
 
-    <footer class="footer mt-5 py-5" style="background: linear-gradient(180deg, var(--card-bg) 0%, #0a0f1f 100%); border-top: 3px solid var(--primary);">
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer mt-5 py-5" style="background: linear-gradient(180deg, #141b2b 0%, #0a0f1f 100%); border-top: 3px solid #00ffff;">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-about">
                         <h4 class="text-cyber mb-4">
                             <i class="fas fa-shield-alt me-2"></i>
-                            EdgeSecure<span style="color: var(--primary);">Arch</span>
+                            EdgeSecure<span style="color: #00ffff;">Arch</span>
                         </h4>
                         <p class="text-secondary mb-3">
                             A Secure and Lightweight Multi-Layer Architecture for IoT-Based Smart Home Systems 
@@ -709,27 +791,27 @@
                             <span class="text-cyber fw-bold">43%</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 43%"></div>
+                            <div class="progress-bar" style="width: 43%; background: #00ffff;"></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-secondary">Attack Detection</span>
                             <span class="text-cyber fw-bold">98.7%</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 98.7%"></div>
+                            <div class="progress-bar" style="width: 98.7%; background: #00ffff;"></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-secondary">Edge Processing</span>
                             <span class="text-cyber fw-bold">5ms</span>
                         </div>
                         <div class="progress mb-3" style="height: 5px;">
-                            <div class="progress-bar bg-cyber" style="width: 100%"></div>
+                            <div class="progress-bar" style="width: 100%; background: #00ffff;"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <hr class="border-cyber opacity-25 my-4">
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
 
             <div class="row align-items-center g-3">
                 <div class="col-md-4">
@@ -756,7 +838,7 @@
                 </div>
             </div>
 
-            <hr class="border-cyber opacity-25 my-4">
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
 
             <div class="row">
                 <div class="col-md-6">
@@ -788,40 +870,65 @@
         </div>
     </footer>
 
-    <!-- Footer live clock + year (in case app.js isn't loaded) -->
+    <!-- ========== SCRIPTS ========== -->
     <script>
-        (function() {
-            function updateFooterClock() {
-                const t = new Date().toUTCString().split(' ')[4];
-                document.querySelectorAll('.live-time').forEach(el => el.textContent = t);
+        // Logout
+        function logout() {
+            if (confirm('Log out of IoT SecureEdge?')) {
+                sessionStorage.removeItem('iot_smart_home_current_user');
+                window.location.href = 'login.html';
             }
-            updateFooterClock();
-            setInterval(updateFooterClock, 1000);
+        }
 
-            const yearEl = document.getElementById('footerYear');
-            if (yearEl) yearEl.textContent = new Date().getFullYear();
+        // Watch toggle
+        function connectWatch() {
+            const s = document.getElementById('watchStatus');
+            if (!s) return;
+            if (s.textContent.includes('Disconnected')) {
+                s.textContent = 'Smart Watch: Connected';
+                s.classList.remove('text-secondary');
+                s.classList.add('text-cyber');
+            } else {
+                s.textContent = 'Smart Watch: Disconnected';
+                s.classList.add('text-secondary');
+                s.classList.remove('text-cyber');
+            }
+        }
+
+        // Footer clock
+        function updateFooterClock() {
+            const t = new Date().toUTCString().split(' ')[4];
+            document.querySelectorAll('.live-time').forEach(function(el) {
+                el.textContent = t;
+            });
+        }
+        updateFooterClock();
+        setInterval(updateFooterClock, 1000);
+
+        // Footer year
+        const yearEl = document.getElementById('footerYear');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        // Active nav link
+        (function() {
+            const current = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('#mainNav .nav-link').forEach(function(link) {
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        })();
+
+        // Auth check — redirect to login if not logged in
+        (function() {
+            const session = sessionStorage.getItem('iot_smart_home_current_user');
+            if (!session) {
+                // Uncomment the line below to ENFORCE login on this page
+                // window.location.href = 'login.html';
+            }
         })();
     </script>
-    <!-- AOS init -->
-    <script>
-        AOS.init({ duration: 800, once: true });
-    </script>
 
-    <script>
-function connectWatch() {
-    const s = document.getElementById('watchStatus');
-    if (!s) return;
-    if (s.textContent.includes('Disconnected')) {
-        s.textContent = 'Smart Watch: Connected';
-        s.classList.remove('text-secondary');
-        s.classList.add('text-cyber');
-    } else {
-        s.textContent = 'Smart Watch: Disconnected';
-        s.classList.add('text-secondary');
-        s.classList.remove('text-cyber');
-    }
-}
-</script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
