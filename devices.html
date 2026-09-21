@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Devices - Multi-Layer Architecture Device Management</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0b0f1c;
+            --card-bg: #141b2b;
+            --danger: #ff4d6d;
+            --warning: #ffb347;
+            --success: #00ff9d;
+            --secondary: #9bb8e0;
+        }
+        body {
+            background: #0b0f1c;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        .text-secondary {
+            color: #9bb8e0 !important;
+        }
+        .iot-card {
+            background: #141b2b;
+            border: 1px solid #2a3a55;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 255, 255, 0.08);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            border-radius: 30px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+        .btn-iot:hover {
+            background: #00ffff;
+            color: #0b0f1c;
+            box-shadow: 0 0 18px rgba(0, 255, 255, 0.5);
+        }
+        .badge.bg-cyber {
+            background: #00ffff;
+            color: #0b0f1c;
+            font-weight: 500;
+        }
+        .badge.bg-info {
+            background: #4169e1 !important;
+            color: white;
+        }
+        .border-cyber {
+            border-color: #00ffff !important;
+        }
+        .form-control.border-cyber {
+            border-color: #00ffff !important;
+        }
+        .form-control.bg-dark {
+            background-color: #0a0f18 !important;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        .status-offline {
+            background: var(--danger);
+        }
+        .progress {
+            height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .progress-bar.bg-cyber {
+            background: #00ffff;
+            border-radius: 10px;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: #00ffff;
+        }
+        .device-item {
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+        .device-item:hover {
+            transform: translateX(5px);
+            background: rgba(0,255,255,0.1) !important;
+        }
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e0e0e0;
+            --bs-table-border-color: #2a3a55;
+        }
+        .table-dark thead th {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-microchip text-cyber me-3"></i>
+                Multi-Layer IoT Device Management
+            </h1>
+            <p class="lead text-secondary">
+                Manage devices across Device Layer, Edge Layer, and Cloud Layer
+            </p>
+        </div>
+    </div>
+
+    <!-- Layer Distribution Overview -->
+    <div class="row mb-4 g-4">
+        <div class="col-md-4">
+            <div class="iot-card text-center">
+                <i class="fas fa-microchip fa-3x text-cyber mb-3"></i>
+                <h3>Device Layer</h3>
+                <p class="display-6 text-cyber" id="deviceLayerCount">0</p>
+                <p class="text-secondary">Sensors, Lights, Locks</p>
+                <div class="progress">
+                    <div class="progress-bar bg-cyber" id="deviceLayerBar" style="width: 0%"></div>
+                </div>
+                <small class="text-cyber">AES-256 Encrypted</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="iot-card text-center border-cyber">
+                <i class="fas fa-server fa-3x text-cyber mb-3"></i>
+                <h3 class="text-cyber">Edge Layer</h3>
+                <p class="display-6 text-cyber" id="edgeLayerCount">0</p>
+                <p class="text-secondary">Cameras, Thermostats</p>
+                <div class="progress">
+                    <div class="progress-bar bg-cyber" id="edgeLayerBar" style="width: 0%"></div>
+                </div>
+                <small class="text-cyber">IDS + RBAC Protected</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="iot-card text-center">
+                <i class="fas fa-cloud fa-3x text-cyber mb-3"></i>
+                <h3>Cloud Layer</h3>
+                <p class="display-6 text-cyber" id="cloudLayerCount">0</p>
+                <p class="text-secondary">Smart Plugs, Gateways</p>
+                <div class="progress">
+                    <div class="progress-bar bg-cyber" id="cloudLayerBar" style="width: 0%"></div>
+                </div>
+                <small class="text-cyber">TLS 1.3 Secured</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Device Form -->
+    <div class="row mb-4 g-4">
+        <div class="col-md-7">
+            <div class="iot-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-plus-circle text-cyber me-2"></i>
+                    Add New Device to Architecture
+                </h4>
+                
+                <div id="successMessage" class="alert mb-3 d-none" style="background: rgba(0,255,0,0.1); border: 1px solid #00ff9d; color: #00ff9d;"></div>
+                
+                <form id="addDeviceForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-cyber">Device Name</label>
+                            <input type="text" id="deviceName" class="form-control bg-dark text-white border-cyber" required placeholder="e.g., Living Room Light">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-cyber">Room/Location</label>
+                            <input type="text" id="deviceRoom" class="form-control bg-dark text-white border-cyber" required placeholder="e.g., Living Room">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-cyber">Device Type</label>
+                            <select id="deviceTypeSelect" class="form-control bg-dark text-white border-cyber">
+                                <option value="sensor">Sensor (Device Layer)</option>
+                                <option value="light">Smart Light (Device Layer)</option>
+                                <option value="lock">Smart Lock (Device Layer)</option>
+                                <option value="camera">Security Camera (Edge Layer)</option>
+                                <option value="thermostat">Thermostat (Edge Layer)</option>
+                                <option value="gateway">Edge Gateway (Edge Layer)</option>
+                                <option value="plug">Smart Plug (Cloud Layer)</option>
+                                <option value="hub">Smart Hub (Cloud Layer)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-cyber">Security Layer</label>
+                            <input type="text" id="securityLayer" class="form-control bg-dark text-white border-cyber" readonly placeholder="Auto-detected">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div id="securityFeatures" class="p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
+                                <small class="text-cyber">Security features will appear here</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-iot">
+                        <i class="fas fa-plus me-2"></i>Add to Architecture
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-5">
+            <div class="iot-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-chart-pie text-cyber me-2"></i>
+                    Architecture Distribution
+                </h4>
+                <canvas id="layerChart" style="max-height: 200px;"></canvas>
+                
+                <div class="mt-4">
+                    <h6 class="text-cyber">Active Security by Layer:</h6>
+                    <div class="small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-microchip text-cyber me-2"></i>Device Layer</span>
+                            <span class="text-cyber">AES-256</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-server text-cyber me-2"></i>Edge Layer</span>
+                            <span class="text-cyber">IDS + RSA + RBAC</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas fa-cloud text-cyber me-2"></i>Cloud Layer</span>
+                            <span class="text-cyber">TLS 1.3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device List Grouped by Layer -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="section-title">Devices by Layer</h2>
+        </div>
+        
+        <!-- Device Layer Devices -->
+        <div class="col-md-4 mb-4">
+            <div class="iot-card">
+                <h4 class="text-cyber mb-3">
+                    <i class="fas fa-microchip me-2"></i>
+                    Device Layer
+                </h4>
+                <p class="small text-secondary mb-3">AES-256 Encrypted • Secure Boot • HSM</p>
+                <div id="deviceLayerDevices">
+                    <p class="text-secondary">No device layer devices</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edge Layer Devices -->
+        <div class="col-md-4 mb-4">
+            <div class="iot-card border-cyber">
+                <h4 class="text-cyber mb-3">
+                    <i class="fas fa-server me-2"></i>
+                    Edge Layer
+                </h4>
+                <p class="small text-secondary mb-3">IDS • RSA Key Exchange • RBAC • MFA • 5ms</p>
+                <div id="edgeLayerDevices">
+                    <p class="text-secondary">No edge layer devices</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cloud Layer Devices -->
+        <div class="col-md-4 mb-4">
+            <div class="iot-card">
+                <h4 class="text-cyber mb-3">
+                    <i class="fas fa-cloud me-2"></i>
+                    Cloud Layer
+                </h4>
+                <p class="small text-secondary mb-3">TLS 1.3 • Encrypted Storage • Audit Logs</p>
+                <div id="cloudLayerDevices">
+                    <p class="text-secondary">No cloud layer devices</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Device List -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="iot-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-list text-cyber me-2"></i>
+                    All Devices - Multi-Layer View
+                </h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Type</th>
+                                <th>Room</th>
+                                <th>Layer</th>
+                                <th>Security</th>
+                                <th>Status</th>
+                                <th>IP Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deviceTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer placeholder -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; 2025
+</div>
+
+<script>
+/**
+ * IoTDatabase - localStorage-based simulation
+ * Replaces the PHP IoTDatabase class.
+ */
+class IoTDatabase {
+    constructor() {
+        this.dbName = 'iot_smart_home';
+        this.conn = null;
+    }
+
+    connect() {
+        if (this.conn) return this.conn;
+        this.conn = {
+            devices: this._loadTable('devices'),
+            security_events: this._loadTable('security_events')
+        };
+        this._setupTables();
+        return this.conn;
+    }
+
+    _setupTables() {
+        if (!localStorage.getItem(this.dbName + '_devices')) {
+            localStorage.setItem(this.dbName + '_devices', JSON.stringify([]));
+        }
+        if (!localStorage.getItem(this.dbName + '_security_events')) {
+            localStorage.setItem(this.dbName + '_security_events', JSON.stringify([]));
+        }
+        this.insertSampleData();
+    }
+
+    insertSampleData() {
+        const devices = this._loadTable('devices');
+        if (devices.length === 0) {
+            const sampleDevices = [
+                { id: 1, device_name: 'Living Room Light', device_type: 'light', status: 1, value: 0, room: 'Living Room', ip_address: '192.168.1.101', mac_address: 'AA:BB:CC:DD:EE:01' },
+                { id: 2, device_name: 'Smart Thermostat', device_type: 'thermostat', status: 1, value: 22.5, room: 'Living Room', ip_address: '192.168.1.102', mac_address: 'AA:BB:CC:DD:EE:02' },
+                { id: 3, device_name: 'Front Door Camera', device_type: 'camera', status: 1, value: 0, room: 'Entrance', ip_address: '192.168.1.103', mac_address: 'AA:BB:CC:DD:EE:03' },
+                { id: 4, device_name: 'Main Door Lock', device_type: 'lock', status: 1, value: 1, room: 'Main Door', ip_address: '192.168.1.104', mac_address: 'AA:BB:CC:DD:EE:04' },
+                { id: 5, device_name: 'Hallway Motion Sensor', device_type: 'sensor', status: 1, value: 0, room: 'Hallway', ip_address: '192.168.1.105', mac_address: 'AA:BB:CC:DD:EE:05' },
+                { id: 6, device_name: 'Kitchen Smoke Detector', device_type: 'sensor', status: 1, value: 0, room: 'Kitchen', ip_address: '192.168.1.106', mac_address: 'AA:BB:CC:DD:EE:06' },
+                { id: 7, device_name: 'Bedroom Smart Plug', device_type: 'plug', status: 0, value: 0, room: 'Bedroom', ip_address: '192.168.1.107', mac_address: 'AA:BB:CC:DD:EE:07' },
+                { id: 8, device_name: 'Temperature Sensor', device_type: 'sensor', status: 1, value: 23.5, room: 'Bedroom', ip_address: '192.168.1.108', mac_address: 'AA:BB:CC:DD:EE:08' }
+            ];
+            this._saveTable('devices', sampleDevices);
+        }
+    }
+
+    logSecurityEvent(type, severity, description, ip) {
+        const events = this._loadTable('security_events');
+        events.push({
+            id: events.length + 1,
+            event_type: type,
+            severity: severity,
+            description: description,
+            source_ip: ip,
+            timestamp: new Date().toISOString()
+        });
+        this._saveTable('security_events', events);
+    }
+
+    getDevices() {
+        const devices = this._loadTable('devices');
+        return devices.sort((a, b) => {
+            if (a.room === b.room) return a.device_name.localeCompare(b.device_name);
+            return a.room.localeCompare(b.room);
+        });
+    }
+
+    addDevice(name, type, room) {
+        const devices = this._loadTable('devices');
+        const newId = devices.length > 0 ? Math.max(...devices.map(d => d.id)) + 1 : 1;
+        const ip = '192.168.1.' + Math.floor(Math.random() * 101 + 100);
+        const mac = Array.from({length: 6}, () => 
+            Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase()
+        ).join(':');
+        
+        devices.push({
+            id: newId,
+            device_name: name,
+            device_type: type,
+            status: 0,
+            value: 0,
+            room: room,
+            ip_address: ip,
+            mac_address: mac,
+            last_seen: new Date().toISOString()
+        });
+        this._saveTable('devices', devices);
+        return newId;
+    }
+
+    deleteDevice(id) {
+        let devices = this._loadTable('devices');
+        devices = devices.filter(d => d.id !== id);
+        this._saveTable('devices', devices);
+    }
+
+    _loadTable(name) {
+        const raw = localStorage.getItem(this.dbName + '_' + name);
+        return raw ? JSON.parse(raw) : [];
+    }
+
+    _saveTable(name, data) {
+        localStorage.setItem(this.dbName + '_' + name, JSON.stringify(data));
+    }
+}
+
+/* -------- App logic (replaces PHP) -------- */
+
+const db = new IoTDatabase();
+db.connect();
+
+const DEVICE_LAYER_TYPES = ['sensor', 'light', 'lock'];
+const EDGE_LAYER_TYPES = ['camera', 'thermostat', 'gateway'];
+const CLOUD_LAYER_TYPES = ['plug', 'hub'];
+
+let layerChartInstance = null;
+
+function getLayerInfo(type) {
+    if (DEVICE_LAYER_TYPES.includes(type)) {
+        return { layer: 'Device', security: 'AES-256', badgeClass: 'bg-cyber', layerKey: 'device' };
+    } else if (EDGE_LAYER_TYPES.includes(type)) {
+        return { layer: 'Edge', security: 'IDS + RSA', badgeClass: 'bg-cyber', layerKey: 'edge' };
+    } else {
+        return { layer: 'Cloud', security: 'TLS 1.3', badgeClass: 'bg-info', layerKey: 'cloud' };
+    }
+}
+
+function getDeviceIcon(type) {
+    const icons = {
+        light: 'fa-lightbulb',
+        camera: 'fa-video',
+        lock: 'fa-lock',
+        thermostat: 'fa-temperature-high',
+        sensor: 'fa-wave-square',
+        plug: 'fa-plug',
+        hub: 'fa-hubspot',
+        gateway: 'fa-server'
+    };
+    return icons[type] || 'fa-microchip';
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function renderDeviceItem(device, layerKey) {
+    const isEdge = layerKey === 'edge';
+    return `
+        <div class="device-item mb-2 p-2" style="border-left: 3px solid #00ffff; ${isEdge ? 'background: rgba(0,255,255,0.05);' : ''}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong class="${isEdge ? 'text-cyber' : ''}">${escapeHtml(device.device_name)}</strong>
+                    <br>
+                    <small class="text-secondary">
+                        <i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(device.room)}
+                    </small>
+                </div>
+                <span class="status-dot ${device.status ? 'status-online' : 'status-offline'}"></span>
+            </div>
+            <div class="mt-1 small">
+                ${isEdge 
+                    ? '<span class="badge bg-cyber text-dark">IDS</span> <span class="badge bg-cyber text-dark">RSA</span>' 
+                    : `<span class="badge bg-cyber text-dark">${layerKey === 'device' ? 'AES-256' : 'TLS 1.3'}</span>`}
+                <span class="badge bg-secondary">${device.device_type.charAt(0).toUpperCase() + device.device_type.slice(1)}</span>
+            </div>
+        </div>
+    `;
+}
+
+function renderAll() {
+    const devices = db.getDevices();
+
+    // Layer counts
+    const counts = { device: 0, edge: 0, cloud: 0 };
+    devices.forEach(d => {
+        counts[getLayerInfo(d.device_type).layerKey]++;
+    });
+
+    const total = devices.length || 1;
+
+    document.getElementById('deviceLayerCount').textContent = counts.device;
+    document.getElementById('edgeLayerCount').textContent = counts.edge;
+    document.getElementById('cloudLayerCount').textContent = counts.cloud;
+
+    document.getElementById('deviceLayerBar').style.width = (counts.device / total * 100) + '%';
+    document.getElementById('edgeLayerBar').style.width = (counts.edge / total * 100) + '%';
+    document.getElementById('cloudLayerBar').style.width = (counts.cloud / total * 100) + '%';
+
+    // Grouped lists
+    const deviceLayerDevices = devices.filter(d => DEVICE_LAYER_TYPES.includes(d.device_type));
+    const edgeLayerDevices = devices.filter(d => EDGE_LAYER_TYPES.includes(d.device_type));
+    const cloudLayerDevices = devices.filter(d => CLOUD_LAYER_TYPES.includes(d.device_type));
+
+    document.getElementById('deviceLayerDevices').innerHTML = deviceLayerDevices.length
+        ? deviceLayerDevices.map(d => renderDeviceItem(d, 'device')).join('')
+        : '<p class="text-secondary">No device layer devices</p>';
+
+    document.getElementById('edgeLayerDevices').innerHTML = edgeLayerDevices.length
+        ? edgeLayerDevices.map(d => renderDeviceItem(d, 'edge')).join('')
+        : '<p class="text-secondary">No edge layer devices</p>';
+
+    document.getElementById('cloudLayerDevices').innerHTML = cloudLayerDevices.length
+        ? cloudLayerDevices.map(d => renderDeviceItem(d, 'cloud')).join('')
+        : '<p class="text-secondary">No cloud layer devices</p>';
+
+    // Detailed table
+    const tbody = document.getElementById('deviceTableBody');
+    tbody.innerHTML = devices.map(device => {
+        const info = getLayerInfo(device.device_type);
+        return `
+            <tr>
+                <td>${escapeHtml(device.device_name)}</td>
+                <td>${device.device_type.charAt(0).toUpperCase() + device.device_type.slice(1)}</td>
+                <td>${escapeHtml(device.room)}</td>
+                <td><span class="badge ${info.badgeClass} text-dark">${info.layer} Layer</span></td>
+                <td><small class="text-cyber">${info.security}</small></td>
+                <td>
+                    <span class="status-dot ${device.status ? 'status-online' : 'status-offline'}"></span>
+                    ${device.status ? 'Online' : 'Offline'}
+                </td>
+                <td>${device.ip_address}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteDevice(${device.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    // Chart
+    renderChart(counts);
+}
+
+function renderChart(counts) {
+    const ctx = document.getElementById('layerChart').getContext('2d');
+    if (layerChartInstance) {
+        layerChartInstance.destroy();
+    }
+    layerChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Device Layer', 'Edge Layer', 'Cloud Layer'],
+            datasets: [{
+                data: [counts.device, counts.edge, counts.cloud],
+                backgroundColor: ['#00ffff', '#4169e1', '#ffd700']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff', font: { size: 10 } }
+                }
+            }
+        }
+    });
+}
+
+function deleteDevice(id) {
+    if (!confirm('Delete this device?')) return;
+    const devices = db.getDevices();
+    const device = devices.find(d => d.id === id);
+    if (device) {
+        db.deleteDevice(id);
+        db.logSecurityEvent(
+            'DEVICE_REMOVED',
+            'INFO',
+            `Device removed: ${device.device_name} from ${device.room}`,
+            '127.0.0.1'
+        );
+    }
+    renderAll();
+}
+
+/* -------- Form handling -------- */
+
+document.getElementById('deviceTypeSelect').addEventListener('change', function() {
+    const type = this.value;
+    const securityDiv = document.getElementById('securityFeatures');
+    const layerInput = document.getElementById('securityLayer');
+    
+    let layer = '';
+    let features = '';
+    
+    if (DEVICE_LAYER_TYPES.includes(type)) {
+        layer = 'Device Layer';
+        features = `
+            <small class="text-cyber">🔐 Device Layer Security:</small><br>
+            <span class="badge bg-cyber text-dark me-1">AES-256 Encryption</span>
+            <span class="badge bg-cyber text-dark me-1">Secure Boot</span>
+            <span class="badge bg-cyber text-dark">Hardware Security</span>
+        `;
+    } else if (EDGE_LAYER_TYPES.includes(type)) {
+        layer = 'Edge Layer';
+        features = `
+            <small class="text-cyber">⚡ Edge Layer Security:</small><br>
+            <span class="badge bg-cyber text-dark me-1">IDS Monitoring</span>
+            <span class="badge bg-cyber text-dark me-1">RSA Key Exchange</span>
+            <span class="badge bg-cyber text-dark me-1">RBAC</span>
+            <span class="badge bg-cyber text-dark">MFA</span>
+        `;
+    } else {
+        layer = 'Cloud Layer';
+        features = `
+            <small class="text-cyber">☁️ Cloud Layer Security:</small><br>
+            <span class="badge bg-cyber text-dark me-1">TLS 1.3</span>
+            <span class="badge bg-cyber text-dark me-1">Encrypted Storage</span>
+            <span class="badge bg-cyber text-dark">Audit Logs</span>
+        `;
+    }
+    
+    layerInput.value = layer;
+    securityDiv.innerHTML = features;
+});
+
+document.getElementById('addDeviceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('deviceName').value.trim();
+    const room = document.getElementById('deviceRoom').value.trim();
+    const type = document.getElementById('deviceTypeSelect').value;
+    const layer = document.getElementById('securityLayer').value;
+    
+    if (!name || !room) return;
+    
+    db.addDevice(name, type, room);
+    db.logSecurityEvent(
+        'DEVICE_ADDED',
+        'INFO',
+        `New ${layer} device added: ${name} in ${room}`,
+        '127.0.0.1'
+    );
+    
+    // Show success message
+    const msg = document.getElementById('successMessage');
+    msg.textContent = `✅ Device added successfully to ${layer}!`;
+    msg.classList.remove('d-none');
+    setTimeout(() => msg.classList.add('d-none'), 3000);
+    
+    // Reset form
+    this.reset();
+    document.getElementById('deviceTypeSelect').dispatchEvent(new Event('change'));
+    
+    renderAll();
+});
+
+// Initial render
+document.getElementById('deviceTypeSelect').dispatchEvent(new Event('change'));
+renderAll();
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
