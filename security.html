@@ -1,41 +1,154 @@
-<?php
-$pageTitle = "Multi-Layer Security Architecture - IoT Smart Home Protection";
-include 'header.php';
-require_once 'database.php';
-require_once 'iot_functions.php';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Layer Security Architecture - IoT Smart Home Protection</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0a0f1f;
+            --card-bg: #151f2f;
+            --success: #00ff9d;
+            --danger: #ff4444;
+            --warning: #ffd700;
+            --secondary: #9bb8e0;
+        }
+        body {
+            background: #0a0f1f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        .text-secondary {
+            color: #9bb8e0 !important;
+        }
+        .iot-card {
+            background: #151f2f;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.15);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 25px;
+            transition: 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-iot:hover {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        .badge.bg-cyber {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        .badge.bg-info { background: #4169e1 !important; color: white; }
+        .badge.bg-warning { background: #ffd700 !important; color: #0a0f1f; }
+        .badge.bg-danger { background: #ff4444 !important; color: white; }
+        .border-cyber { border-color: var(--primary) !important; }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: var(--primary);
+        }
+        .layer-icon {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        .security-badge .badge {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        .progress {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .progress-bar.bg-cyber {
+            background: #00ffff;
+            border-radius: 10px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+        .alert-cyber {
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            background: rgba(0,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e0e0e0;
+            --bs-table-border-color: #2a3a55;
+        }
+        .table-dark thead th {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
 
-$db = new IoTDatabase();
-$conn = $db->connect();
-$iot = new IoTManager($db);
-
-// Get all security events
-$events = $conn->query("SELECT * FROM security_events ORDER BY timestamp DESC")->fetchAll(PDO::FETCH_ASSOC);
-
-// Get security stats by layer
-$device_layer_events = $conn->query("SELECT COUNT(*) FROM security_events WHERE description LIKE '%device%' OR description LIKE '%sensor%'")->fetchColumn();
-$edge_layer_events = $conn->query("SELECT COUNT(*) FROM security_events WHERE description LIKE '%edge%' OR description LIKE '%gateway%' OR description LIKE '%ids%'")->fetchColumn();
-$cloud_layer_events = $conn->query("SELECT COUNT(*) FROM security_events WHERE description LIKE '%cloud%' OR description LIKE '%storage%'")->fetchColumn();
-
-// Simulate IDS scan at Edge layer
-if(isset($_POST['run_scan'])) {
-    $threats = rand(0, 5);
-    $db->logSecurityEvent(
-        'EDGE_IDS_SCAN',
-        $threats > 0 ? 'MEDIUM' : 'INFO',
-        "Edge layer IDS scan completed. Found $threats potential threats. Processing at edge gateway.",
-        $_SERVER['REMOTE_ADDR']
-    );
-    
-    // Add success message
-    $scan_message = "✅ Edge IDS scan complete! Found $threats threats.";
-}
-
-// Get stats
-$high_count = $conn->query("SELECT COUNT(*) FROM security_events WHERE severity='HIGH'")->fetchColumn();
-$total_events = count($events);
-?>
-
-<div class="container">
+<div class="container py-4">
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
@@ -54,7 +167,7 @@ $total_events = count($events);
         <div class="col-md-3">
             <div class="iot-card text-center">
                 <i class="fas fa-shield-virus fa-3x text-cyber mb-3"></i>
-                <h3 class="text-cyber"><?php echo $total_events; ?></h3>
+                <h3 class="text-cyber" id="totalEvents">0</h3>
                 <p class="text-secondary mb-1">Total Security Events</p>
                 <small>Multi-layer monitoring</small>
             </div>
@@ -62,7 +175,7 @@ $total_events = count($events);
         <div class="col-md-3">
             <div class="iot-card text-center">
                 <i class="fas fa-exclamation-triangle fa-3x text-cyber mb-3"></i>
-                <h3 class="text-cyber"><?php echo $high_count; ?></h3>
+                <h3 class="text-cyber" id="highCount">0</h3>
                 <p class="text-secondary mb-1">High Severity Threats</p>
                 <small>Blocked at edge</small>
             </div>
@@ -114,7 +227,7 @@ $total_events = count($events);
                     <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Device authentication</li>
                 </ul>
                 <div class="mt-2">
-                    <small class="text-cyber">Events: <?php echo $device_layer_events; ?></small>
+                    <small class="text-cyber">Events: <span id="deviceLayerEvents">0</span></small>
                 </div>
             </div>
         </div>
@@ -144,7 +257,7 @@ $total_events = count($events);
                     <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Multi-factor authentication</li>
                 </ul>
                 <div class="mt-2">
-                    <small class="text-cyber">Events: <?php echo $edge_layer_events; ?></small>
+                    <small class="text-cyber">Events: <span id="edgeLayerEvents">0</span></small>
                 </div>
             </div>
         </div>
@@ -172,14 +285,14 @@ $total_events = count($events);
                     <li class="mb-2"><i class="fas fa-check-circle text-cyber me-2"></i>Secure firmware updates</li>
                 </ul>
                 <div class="mt-2">
-                    <small class="text-cyber">Events: <?php echo $cloud_layer_events; ?></small>
+                    <small class="text-cyber">Events: <span id="cloudLayerEvents">0</span></small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Security Controls & Active Measures -->
-    <div class="row mb-4">
+    <div class="row mb-4 g-4">
         <div class="col-md-7">
             <div class="iot-card">
                 <h4 class="mb-3">
@@ -187,7 +300,6 @@ $total_events = count($events);
                     Active Security Measures by Layer
                 </h4>
                 
-                <!-- Device Layer Progress -->
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span><i class="fas fa-microchip text-cyber me-2"></i>Device Layer Security</span>
@@ -199,7 +311,6 @@ $total_events = count($events);
                     <small class="text-secondary">AES-256, Secure Boot, HSM</small>
                 </div>
                 
-                <!-- Edge Layer Progress -->
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span><i class="fas fa-server text-cyber me-2"></i>Edge Layer Security</span>
@@ -211,7 +322,6 @@ $total_events = count($events);
                     <small class="text-secondary">IDS, RSA, RBAC, MFA</small>
                 </div>
                 
-                <!-- Cloud Layer Progress -->
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span><i class="fas fa-cloud text-cyber me-2"></i>Cloud Layer Security</span>
@@ -223,7 +333,6 @@ $total_events = count($events);
                     <small class="text-secondary">TLS 1.3, Encrypted Storage, Audit Logs</small>
                 </div>
                 
-                <!-- Live Edge Status -->
                 <div class="mt-4 p-3" style="background: rgba(0,255,255,0.05); border-radius: 10px;">
                     <div class="d-flex align-items-center">
                         <span class="status-dot status-online me-2"></span>
@@ -241,19 +350,12 @@ $total_events = count($events);
                     Security Controls
                 </h4>
                 
-                <!-- Scan Results Message -->
-                <?php if(isset($scan_message)): ?>
-                <div class="alert alert-cyber mb-3" style="background: rgba(0,255,255,0.1); border: 1px solid var(--primary);">
-                    <?php echo $scan_message; ?>
-                </div>
-                <?php endif; ?>
+                <div id="scanMessage" class="alert-cyber mb-3 d-none"></div>
                 
-                <form method="POST" class="mb-3">
-                    <button type="submit" name="run_scan" class="btn btn-iot w-100 mb-2">
-                        <i class="fas fa-search me-2"></i>
-                        Run Edge IDS Scan
-                    </button>
-                </form>
+                <button class="btn btn-iot w-100 mb-2" onclick="runEdgeScan()">
+                    <i class="fas fa-search me-2"></i>
+                    Run Edge IDS Scan
+                </button>
                 
                 <button class="btn btn-iot w-100 mb-2" onclick="simulateAttack()">
                     <i class="fas fa-bug me-2"></i>
@@ -270,7 +372,6 @@ $total_events = count($events);
                     Test Edge Processing
                 </button>
                 
-                <!-- Edge Performance -->
                 <div class="mt-4">
                     <h6 class="text-cyber">Edge Processing Performance</h6>
                     <div class="d-flex justify-content-between small">
@@ -290,11 +391,11 @@ $total_events = count($events);
         </div>
     </div>
 
-    <!-- Security Events Log with Layer Filter -->
+    <!-- Security Events Log -->
     <div class="row">
         <div class="col-12">
             <div class="iot-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="mb-0">
                         <i class="fas fa-list text-cyber me-2"></i>
                         Multi-Layer Security Event Log
@@ -318,42 +419,10 @@ $total_events = count($events);
                                 <th>Source IP</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php if(empty($events)): ?>
+                        <tbody id="eventTableBody">
                             <tr>
                                 <td colspan="6" class="text-center text-cyber">No security events - System secure</td>
                             </tr>
-                            <?php else: ?>
-                                <?php foreach($events as $event): 
-                                    // Determine layer based on description
-                                    $layer = 'Edge';
-                                    if(strpos($event['description'], 'device') !== false || strpos($event['description'], 'sensor') !== false) {
-                                        $layer = 'Device';
-                                    } elseif(strpos($event['description'], 'cloud') !== false || strpos($event['description'], 'storage') !== false) {
-                                        $layer = 'Cloud';
-                                    }
-                                ?>
-                                <tr>
-                                    <td><?php echo $event['timestamp']; ?></td>
-                                    <td>
-                                        <span class="badge bg-cyber text-dark">
-                                            <?php echo $layer; ?> Layer
-                                        </span>
-                                    </td>
-                                    <td><?php echo $event['event_type']; ?></td>
-                                    <td>
-                                        <span class="badge bg-<?php 
-                                            echo $event['severity'] == 'HIGH' ? 'danger' : 
-                                                ($event['severity'] == 'MEDIUM' ? 'warning' : 'info'); 
-                                        ?>">
-                                            <?php echo $event['severity']; ?>
-                                        </span>
-                                    </td>
-                                    <td><?php echo $event['description']; ?></td>
-                                    <td><?php echo $event['source_ip']; ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -398,122 +467,170 @@ $total_events = count($events);
     </div>
 </div>
 
-<style>
-/* Additional styles for security page */
-.layer-icon {
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-    border-radius: 50%;
-    background: rgba(0, 255, 255, 0.1);
-}
-
-.security-badge .badge {
-    font-size: 0.75rem;
-    padding: 5px 10px;
-    margin-right: 5px;
-}
-
-.progress {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-}
-
-.progress-bar {
-    border-radius: 10px;
-}
-
-.status-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.status-online {
-    background: var(--success);
-    box-shadow: 0 0 10px var(--success);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
-}
-
-.badge.bg-cyber {
-    background: var(--primary);
-    color: var(--dark);
-}
-
-.alert-cyber {
-    color: var(--primary);
-    border-color: var(--primary);
-}
-
-.section-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    position: relative;
-    display: inline-block;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 60%;
-    height: 3px;
-    background: var(--primary);
-}
-
-.border-cyber {
-    border-color: var(--primary) !important;
-}
-</style>
+<!-- Footer placeholder -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; <span id="footerYear">2025</span>
+</div>
 
 <script>
+/* ---------- localStorage-based event log (replaces PHP/MySQL) ---------- */
+const DB_KEY = 'iot_smart_home_security_events';
+
+function loadEvents() {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw || JSON.parse(raw).length === 0) {
+        // Seed with a few sample events so the table isn't empty on first load
+        const seed = [
+            { id: 1, event_type: 'EDGE_IDS_SCAN', severity: 'MEDIUM', description: 'Suspicious traffic pattern detected at edge gateway', source_ip: '192.168.1.200', timestamp: new Date(Date.now() - 120000).toISOString() },
+            { id: 2, event_type: 'DEVICE_TOGGLE', severity: 'INFO', description: 'Device Living Room Light turned ON', source_ip: '192.168.1.101', timestamp: new Date(Date.now() - 300000).toISOString() },
+            { id: 3, event_type: 'DEVICE_ADDED', severity: 'INFO', description: 'New device layer device added: Temperature Sensor in Bedroom', source_ip: '127.0.0.1', timestamp: new Date(Date.now() - 600000).toISOString() },
+            { id: 4, event_type: 'CLOUD_SYNC', severity: 'INFO', description: 'Encrypted cloud storage sync completed', source_ip: '192.168.1.1', timestamp: new Date(Date.now() - 900000).toISOString() },
+            { id: 5, event_type: 'BRUTE_FORCE', severity: 'HIGH', description: 'Brute force attack on smart lock blocked', source_ip: '203.0.113.42', timestamp: new Date(Date.now() - 1200000).toISOString() }
+        ];
+        localStorage.setItem(DB_KEY, JSON.stringify(seed));
+        return seed;
+    }
+    return JSON.parse(raw);
+}
+
+function saveEvents(events) {
+    localStorage.setItem(DB_KEY, JSON.stringify(events));
+}
+
+function logEvent(type, severity, description, ip) {
+    const events = loadEvents();
+    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+    events.push({
+        id: newId,
+        event_type: type,
+        severity: severity,
+        description: description,
+        source_ip: ip || '127.0.0.1',
+        timestamp: new Date().toISOString()
+    });
+    saveEvents(events);
+    return newId;
+}
+
+/* ---------- Layer classification (replaces PHP strpos checks) ---------- */
+function classifyLayer(description) {
+    const d = description.toLowerCase();
+    if (d.includes('device') || d.includes('sensor')) return 'Device';
+    if (d.includes('cloud') || d.includes('storage')) return 'Cloud';
+    return 'Edge';
+}
+
+function severityBadge(severity) {
+    if (severity === 'HIGH') return 'bg-danger';
+    if (severity === 'MEDIUM') return 'bg-warning';
+    return 'bg-info';
+}
+
+/* ---------- Rendering ---------- */
+function renderAll() {
+    const events = loadEvents();
+
+    // Stats
+    document.getElementById('totalEvents').textContent = events.length;
+    document.getElementById('highCount').textContent = events.filter(e => e.severity === 'HIGH').length;
+
+    // Layer event counts
+    let deviceCount = 0, edgeCount = 0, cloudCount = 0;
+    events.forEach(e => {
+        const layer = classifyLayer(e.description);
+        if (layer === 'Device') deviceCount++;
+        else if (layer === 'Cloud') cloudCount++;
+        else edgeCount++;
+    });
+    document.getElementById('deviceLayerEvents').textContent = deviceCount;
+    document.getElementById('edgeLayerEvents').textContent = edgeCount;
+    document.getElementById('cloudLayerEvents').textContent = cloudCount;
+
+    // Table
+    const tbody = document.getElementById('eventTableBody');
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-cyber">No security events - System secure</td></tr>';
+        return;
+    }
+
+    // Sort by timestamp DESC
+    const sorted = [...events].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    tbody.innerHTML = sorted.map(e => {
+        const layer = classifyLayer(e.description);
+        const ts = new Date(e.timestamp).toLocaleString();
+        return `
+            <tr>
+                <td>${ts}</td>
+                <td><span class="badge bg-cyber text-dark">${layer} Layer</span></td>
+                <td>${e.event_type}</td>
+                <td><span class="badge ${severityBadge(e.severity)}">${e.severity}</span></td>
+                <td>${escapeHtml(e.description)}</td>
+                <td>${e.source_ip}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showScanMessage(msg) {
+    const el = document.getElementById('scanMessage');
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 4000);
+}
+
+/* ---------- Action handlers (replace PHP POST blocks) ---------- */
+function runEdgeScan() {
+    const threats = Math.floor(Math.random() * 6); // 0–5
+    logEvent(
+        'EDGE_IDS_SCAN',
+        threats > 0 ? 'MEDIUM' : 'INFO',
+        `Edge layer IDS scan completed. Found ${threats} potential threats. Processing at edge gateway.`,
+        '127.0.0.1'
+    );
+    showScanMessage(`✅ Edge IDS scan complete! Found ${threats} threats.`);
+    renderAll();
+}
+
 function simulateAttack() {
-    // Simulate different types of attacks for each layer
     const attacks = [
-        { layer: 'Device', type: 'BRUTE_FORCE', desc: 'Brute force attack on smart lock' },
+        { layer: 'Device', type: 'BRUTE_FORCE', desc: 'Brute force attack on smart lock blocked' },
         { layer: 'Edge', type: 'IDS_ALERT', desc: 'Suspicious traffic pattern detected at edge gateway' },
         { layer: 'Cloud', type: 'UNAUTHORIZED_ACCESS', desc: 'Unauthorized cloud API access attempt' }
     ];
-    
     const attack = attacks[Math.floor(Math.random() * attacks.length)];
-    
-    fetch('security_api.php?action=simulate_attack&layer=' + attack.layer)
-        .then(response => response.json())
-        .then(data => {
-            alert(`⚠️ ${attack.layer} Layer Attack Simulated!\n${attack.desc}\nCheck security log.`);
-            location.reload();
-        });
+
+    logEvent(attack.type, 'HIGH', attack.desc, '203.0.113.' + Math.floor(Math.random() * 255));
+    alert(`⚠️ ${attack.layer} Layer Attack Simulated!\n${attack.desc}\nCheck security log.`);
+    renderAll();
 }
 
 function rotateKeys() {
-    if(confirm('Rotate encryption keys? This will generate new RSA keys at the edge layer.')) {
+    if (confirm('Rotate encryption keys? This will generate new RSA keys at the edge layer.')) {
+        logEvent('KEY_ROTATION', 'INFO', 'Encryption keys rotated at edge layer', '127.0.0.1');
         alert('✅ Encryption keys rotated successfully at edge layer!');
-        // Log the key rotation
-        fetch('security_api.php?action=log_event&type=KEY_ROTATION&desc=Encryption+keys+rotated+at+edge')
-            .then(() => location.reload());
+        renderAll();
     }
 }
 
 function testEdge() {
     alert('⚡ Edge Processing Test\nIDS Latency: 5ms\nThreat Detection: Active\nProcessing at edge gateway...');
-    
-    // Add to stream if you have one
-    const stream = document.querySelector('.data-stream');
-    if(stream) {
-        const timestamp = new Date().toLocaleTimeString();
-        stream.innerHTML = `<div class="small mb-1"><span class="text-cyber">[${timestamp}]</span> ⚡ Edge processing test: 5ms latency</div>` + stream.innerHTML;
-    }
+    logEvent('EDGE_TEST', 'INFO', 'Edge processing test completed in 5ms', '127.0.0.1');
+    renderAll();
 }
+
+/* ---------- Init ---------- */
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+renderAll();
 </script>
 
-<?php include 'footer.php'; ?>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
