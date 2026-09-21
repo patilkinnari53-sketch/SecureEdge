@@ -1,13 +1,141 @@
-<?php
-$pageTitle = "Smart Watch Connection - Real Device";
-include 'header.php';
-require_once 'database.php';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Watch Connection - Real Device</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery (needed for the disconnect modal) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0a0f1f;
+            --card-bg: #151f2f;
+            --success: #00ff9d;
+            --danger: #ff4444;
+            --warning: #ffd700;
+            --secondary: #9bb8e0;
+        }
+        body {
+            background: #0a0f1f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        .text-secondary {
+            color: #9bb8e0 !important;
+        }
+        .iot-card {
+            background: #151f2f;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.15);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 25px;
+            transition: 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-iot:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        .btn-iot:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .data-stream {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+        }
+        .data-stream div {
+            padding: 3px 0;
+            border-bottom: 1px dashed #1e2b40;
+        }
+        .data-stream div:last-child {
+            border-bottom: none;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        .bg-cyber {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        .bg-success {
+            background: var(--success) !important;
+            color: var(--dark) !important;
+        }
+        .bg-warning {
+            background: var(--warning) !important;
+            color: var(--dark) !important;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 15px var(--success);
+            animation: pulse 2s infinite;
+        }
+        .status-offline {
+            background: var(--danger);
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+        #lastConnectedWatch {
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .alert-warning {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
 
-$db = new IoTDatabase();
-$conn = $db->connect();
-?>
-
-<div class="container">
+<div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-4 fw-bold">
@@ -25,7 +153,6 @@ $conn = $db->connect();
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h3 id="statusText">Ready to Connect</h3>
-                        <!-- Watch name ALWAYS visible here -->
                         <p id="deviceInfo" class="text-secondary mb-0">
                             <span id="watchNameDisplay">No watch selected</span>
                             <span id="connectionState" class="ms-2"></span>
@@ -41,18 +168,16 @@ $conn = $db->connect();
     </div>
 
     <!-- Main Connection Panel -->
-    <div class="row">
+    <div class="row g-4">
         <!-- Left Column - Connection Controls -->
         <div class="col-md-4">
             <div class="iot-card">
                 <h4 class="mb-3"><i class="fas fa-bluetooth text-cyber me-2"></i>Connection</h4>
                 
-                <!-- Browser Check -->
                 <div id="browserCheck" class="alert alert-warning" style="display: none;">
                     ⚠️ Your browser doesn't support Web Bluetooth. Please use Chrome, Edge, or Opera.
                 </div>
                 
-                <!-- Connection Buttons -->
                 <button class="btn btn-iot w-100 mb-2" onclick="scanForWatches()" id="scanBtn">
                     <i class="fas fa-search me-2"></i>Scan for Watches
                 </button>
@@ -65,26 +190,22 @@ $conn = $db->connect();
                     <i class="fas fa-unlink me-2"></i>Disconnect Watch
                 </button>
                 
-                <!-- Auto-reconnect toggle -->
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="autoReconnect" checked>
-                    <label class="form-check-label small">Auto-reconnect on disconnect</label>
+                    <label class="form-check-label small" for="autoReconnect">Auto-reconnect on disconnect</label>
                 </div>
                 
-                <!-- Device List -->
                 <div id="deviceList" class="data-stream" style="max-height: 200px; display: none;">
                     <h6 class="text-cyber mb-2">Available Watches:</h6>
                     <div id="devices"></div>
                 </div>
                 
-                <!-- Previously Connected Watch -->
                 <div id="lastConnectedWatch" class="mt-3 p-2" style="border-left: 2px solid var(--primary);">
                     <h6 class="text-cyber">Last Connected:</h6>
                     <p id="lastWatchName" class="mb-0">WAVEASTRA3_8943</p>
                     <small id="lastWatchStatus" class="text-secondary">Disconnected</small>
                 </div>
                 
-                <!-- Supported Devices -->
                 <div class="mt-3">
                     <h6 class="text-cyber">Supported Watch Types:</h6>
                     <div class="small">
@@ -97,7 +218,6 @@ $conn = $db->connect();
                 </div>
             </div>
             
-            <!-- Connection Tips -->
             <div class="iot-card mt-3">
                 <h5 class="text-cyber mb-2">📌 Connection Tips:</h5>
                 <ul class="small text-secondary">
@@ -119,7 +239,6 @@ $conn = $db->connect();
                     <span id="liveStatusBadge" class="badge bg-secondary ms-2">Disconnected</span>
                 </h4>
                 
-                <!-- Live Data Grid -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="text-center p-3" style="background: rgba(0,255,255,0.1); border-radius: 10px;">
@@ -144,7 +263,6 @@ $conn = $db->connect();
                     </div>
                 </div>
                 
-                <!-- Additional Metrics -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-3">
                         <div class="text-center">
@@ -176,7 +294,6 @@ $conn = $db->connect();
                     </div>
                 </div>
                 
-                <!-- Data Stream Log -->
                 <div class="mt-3">
                     <h5 class="text-cyber mb-2">Live Data Stream</h5>
                     <div class="data-stream" id="liveStream" style="height: 150px; overflow-y: auto;">
@@ -184,7 +301,6 @@ $conn = $db->connect();
                     </div>
                 </div>
                 
-                <!-- Connection Info -->
                 <div class="mt-3 small text-secondary" id="connectionInfo">
                     <i class="fas fa-info-circle me-1"></i>
                     Last sync: <span id="lastSync">Never</span>
@@ -203,19 +319,19 @@ $conn = $db->connect();
                     <div class="col-md-4">
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="autoSync" checked>
-                            <label class="form-check-label">Auto-sync data (5 sec)</label>
+                            <label class="form-check-label" for="autoSync">Auto-sync data (5 sec)</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="saveData" checked>
-                            <label class="form-check-label">Save to database</label>
+                            <label class="form-check-label" for="saveData">Save to database</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="showAlerts" checked>
-                            <label class="form-check-label">Health alerts</label>
+                            <label class="form-check-label" for="showAlerts">Health alerts</label>
                         </div>
                     </div>
                 </div>
@@ -244,6 +360,11 @@ $conn = $db->connect();
     </div>
 </div>
 
+<!-- Footer placeholder -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; <span id="footerYear">2025</span>
+</div>
+
 <script>
 // Global variables
 let bluetoothDevice = null;
@@ -255,15 +376,14 @@ let reconnectAttempts = 0;
 let connectStartTime = null;
 let disconnectInitiated = false;
 
-// Fixed watch name - ALWAYS visible
 const DEFAULT_WATCH_NAME = 'WAVEASTRA3_8943';
 
-// Set default watch name on load
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('watchNameDisplay').textContent = DEFAULT_WATCH_NAME;
     document.getElementById('activeWatchName').textContent = DEFAULT_WATCH_NAME;
     document.getElementById('disconnectWatchName').textContent = DEFAULT_WATCH_NAME;
     document.getElementById('lastWatchName').textContent = DEFAULT_WATCH_NAME;
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
     checkBrowserSupport();
 });
 
@@ -275,7 +395,6 @@ function checkBrowserSupport() {
     }
 }
 
-// Scan for available watches
 async function scanForWatches() {
     try {
         showToast('Scanning for watches...', 'info');
@@ -286,9 +405,8 @@ async function scanForWatches() {
         });
         
         selectedDevice = device;
-        
-        // Update watch name but keep DEFAULT as fallback
         const watchName = device.name || DEFAULT_WATCH_NAME;
+        
         document.getElementById('watchNameDisplay').textContent = watchName;
         document.getElementById('activeWatchName').textContent = watchName;
         document.getElementById('disconnectWatchName').textContent = watchName;
@@ -333,7 +451,6 @@ function selectDevice(device) {
     document.getElementById('connectionState').innerHTML = '<span class="badge bg-warning text-dark">Selected</span>';
 }
 
-// Connect to selected watch
 async function connectToWatch() {
     if (!selectedDevice) {
         showToast('Please scan and select a watch first', 'warning');
@@ -348,45 +465,32 @@ async function connectToWatch() {
         const server = await selectedDevice.gatt.connect();
         bluetoothDevice = selectedDevice;
         
-        // Setup disconnect listener
         bluetoothDevice.addEventListener('gattserverdisconnected', handleDisconnect);
         
-        // Try to get heart rate service
         try {
             const heartRateService = await server.getPrimaryService('heart_rate');
             heartRateCharacteristic = await heartRateService.getCharacteristic('heart_rate_measurement');
-            
             await heartRateCharacteristic.startNotifications();
             heartRateCharacteristic.addEventListener('characteristicvaluechanged', handleHeartRateChange);
-            
             showToast('✅ Heart rate monitoring active');
         } catch(e) {
             console.log('Heart rate service not available:', e);
         }
         
-        // Try to get battery service
         try {
             const batteryService = await server.getPrimaryService('battery_service');
             batteryCharacteristic = await batteryService.getCharacteristic('battery_level');
-            
             const batteryValue = await batteryCharacteristic.readValue();
             updateBattery(batteryValue.getUint8(0));
-            
             await batteryCharacteristic.startNotifications();
             batteryCharacteristic.addEventListener('characteristicvaluechanged', handleBatteryChange);
         } catch(e) {
             console.log('Battery service not available:', e);
         }
         
-        // Update UI for connected state - BUT KEEP WATCH NAME
         updateConnectedUI(selectedDevice);
-        
-        // Start data simulation
         startSimulatedMetrics();
-        
-        // Log connection
         logConnection(selectedDevice);
-        
         showToast('✅ Watch connected successfully!');
         
     } catch(error) {
@@ -396,7 +500,6 @@ async function connectToWatch() {
     }
 }
 
-// Handle disconnect
 function handleDisconnect(event) {
     console.log('Watch disconnected:', event);
     
@@ -421,7 +524,6 @@ function handleDisconnect(event) {
     addToStream('❌ Watch disconnected');
 }
 
-// Disconnect watch (user initiated)
 function disconnectWatch() {
     $('#disconnectModal').modal('show');
 }
@@ -433,50 +535,35 @@ function confirmDisconnect() {
     reconnectAttempts = 0;
     
     if (heartRateCharacteristic) {
-        try {
-            heartRateCharacteristic.stopNotifications();
-        } catch(e) {}
+        try { heartRateCharacteristic.stopNotifications(); } catch(e) {}
     }
-    
     if (batteryCharacteristic) {
-        try {
-            batteryCharacteristic.stopNotifications();
-        } catch(e) {}
+        try { batteryCharacteristic.stopNotifications(); } catch(e) {}
     }
-    
     if (bluetoothDevice && bluetoothDevice.gatt.connected) {
         bluetoothDevice.gatt.disconnect();
     }
-    
     if (watchDataInterval) {
         clearInterval(watchDataInterval);
         watchDataInterval = null;
     }
     
-    // Update UI for disconnected state - BUT KEEP WATCH NAME VISIBLE
     updateDisconnectedUI();
-    
     addToStream('🔌 Watch disconnected by user');
     showToast('Watch disconnected');
-    
     logDisconnection(bluetoothDevice);
 }
 
-// Update UI for connected state - KEEPS WATCH NAME
 function updateConnectedUI(device) {
-    const watchName = device.name || DEFAULT_WATCH_NAME;
-    
     document.getElementById('statusText').innerHTML = '✅ Connected';
     document.getElementById('connectionIndicator').className = 'status-dot status-online';
     document.getElementById('connectBtn').disabled = true;
     document.getElementById('disconnectBtn').disabled = false;
     document.getElementById('scanBtn').disabled = true;
     
-    // Show connection time
     document.getElementById('connectionTime').style.display = 'block';
     document.getElementById('connectTime').textContent = connectStartTime.toLocaleTimeString();
     
-    // Update status with watch name VISIBLE
     document.getElementById('connectionState').innerHTML = '<span class="badge bg-success">Connected</span>';
     document.getElementById('liveStatusBadge').className = 'badge bg-success ms-2';
     document.getElementById('liveStatusBadge').textContent = 'Connected';
@@ -484,7 +571,6 @@ function updateConnectedUI(device) {
     document.getElementById('lastWatchStatus').className = 'text-cyber';
 }
 
-// Update UI for disconnected state - KEEPS WATCH NAME
 function updateDisconnectedUI() {
     document.getElementById('statusText').innerHTML = 'Disconnected';
     document.getElementById('connectionIndicator').className = 'status-dot status-offline';
@@ -493,14 +579,12 @@ function updateDisconnectedUI() {
     document.getElementById('scanBtn').disabled = false;
     document.getElementById('connectionTime').style.display = 'none';
     
-    // Update status - WATCH NAME STAYS VISIBLE
     document.getElementById('connectionState').innerHTML = '<span class="badge bg-secondary">Disconnected</span>';
     document.getElementById('liveStatusBadge').className = 'badge bg-secondary ms-2';
     document.getElementById('liveStatusBadge').textContent = 'Disconnected';
     document.getElementById('lastWatchStatus').textContent = 'Disconnected';
     document.getElementById('lastWatchStatus').className = 'text-secondary';
     
-    // Reset data displays to dashes
     document.getElementById('heartRate').textContent = '--';
     document.getElementById('steps').textContent = '--';
     document.getElementById('battery').textContent = '--';
@@ -515,7 +599,6 @@ function updateDisconnectedUI() {
     batteryCharacteristic = null;
 }
 
-// Handle heart rate data
 function handleHeartRateChange(event) {
     const value = event.target.value;
     const heartRate = value.getUint8(1);
@@ -523,15 +606,17 @@ function handleHeartRateChange(event) {
     addToStream(`❤️ Heart Rate: ${heartRate} BPM`);
 }
 
-// Handle battery data
 function handleBatteryChange(event) {
     const value = event.target.value;
     const battery = value.getUint8(0);
+    updateBattery(battery);
+}
+
+function updateBattery(battery) {
     document.getElementById('battery').textContent = battery + '%';
     addToStream(`🔋 Battery: ${battery}%`);
 }
 
-// Simulate other metrics
 function startSimulatedMetrics() {
     if (watchDataInterval) clearInterval(watchDataInterval);
     
@@ -546,7 +631,6 @@ function startSimulatedMetrics() {
     }, 5000);
 }
 
-// Add message to live stream
 function addToStream(message) {
     const stream = document.getElementById('liveStream');
     const timestamp = new Date().toLocaleTimeString();
@@ -560,7 +644,6 @@ function addToStream(message) {
     }
 }
 
-// Log functions
 function logConnection(device) {
     console.log('Watch connected:', device?.name || DEFAULT_WATCH_NAME);
 }
@@ -569,10 +652,8 @@ function logDisconnection(device) {
     console.log('Watch disconnected:', DEFAULT_WATCH_NAME);
 }
 
-// Show toast notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = 'toast-notification';
     toast.style.cssText = `
         position: fixed;
         top: 20px;
@@ -587,56 +668,12 @@ function showToast(message, type = 'success') {
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
-    
     setTimeout(() => toast.remove(), 3000);
 }
 </script>
 
-<style>
-/* Additional styles */
-.badge {
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.8rem;
-}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-.bg-cyber {
-    background: var(--primary);
-    color: var(--dark);
-}
-
-.bg-success {
-    background: var(--success) !important;
-    color: var(--dark) !important;
-}
-
-.status-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.status-online {
-    background: var(--success);
-    box-shadow: 0 0 15px var(--success);
-    animation: pulse 2s infinite;
-}
-
-.status-offline {
-    background: var(--danger);
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
-}
-
-#lastConnectedWatch {
-    background: rgba(0, 255, 255, 0.05);
-    border-radius: 8px;
-}
-</style>
-
-<?php include 'footer.php'; ?>
+</body>
+</html>
