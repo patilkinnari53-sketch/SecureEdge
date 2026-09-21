@@ -14,6 +14,12 @@
     <link rel="stylesheet" href="style.css">
     <!-- Shared scripts + include loader -->
     <script src="app.js" defer></script>
+   <script> function logout() {
+    if (confirm('Log out of IoT SecureEdge?')) {
+        sessionStorage.removeItem('iot_smart_home_current_user');
+        window.location.href = 'login.html';
+    }
+} </script>
     <style>
         .navbar {
     background: rgba(10, 15, 31, 0.95);
