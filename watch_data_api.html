@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watch Data API (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * watch_data_api.js - JavaScript simulation of watch_data_api.php
+ * Handles three actions:
+ *   - log_connection
+ *   - log_disconnection
+ *   - (default) save watch data
+ */
+
+const DB_NAME = 'iot_smart_home';
+const EVENTS_KEY = DB_NAME + '_security_events';
+const SENSOR_DATA_KEY = DB_NAME + '_sensor_data';
+const WATCH_CONN_KEY = DB_NAME + '_watch_connections';
+
+/* ---------- Storage helpers ---------- */
+function load(key) {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : [];
+}
+
+function save(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+/* ---------- Internal inserters (mimic SQL INSERTs) ---------- */
+function insertSecurityEvent(type, severity, description, ip) {
+    const events = load(EVENTS_KEY);
+    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+    events.push({
+        id: newId,
+        event_type: type,
+        severity: severity,
+        description: description,
+        source_ip: ip,
+        timestamp: new Date().toISOString()
+    });
+    save(EVENTS_KEY, events);
+    return newId;
+}
+
+function insertSensorData(device_id, temperature, motion) {
+    const rows = load(SENSOR_DATA_KEY);
+    const newId = rows.length > 0 ? Math.max(...rows.map(r => r.id)) + 1 : 1;
+    rows.push({
+        id: newId,
+        device_id: device_id,
+        temperature: temperature,
+        motion: motion,
+        timestamp: new Date().toISOString()
+    });
+    // Cap at last 500 rows
+    save(SENSOR_DATA_KEY, rows.slice(-500));
+    return newId;
+}
+
+function updateWatchConnection(watch_id, connected) {
+    const connections = load(WATCH_CONN_KEY);
+    const record = connections.find(c => c.watch_id === watch_id);
+    if (record) {
+        record.connected = connected;
+        record.last_sync = new Date().toISOString();
+    } else {
+        connections.push({
+            id: connections.length + 1,
+            watch_id: watch_id,
+            watch_name: watch_id,
+            connected: connected,
+            last_sync: new Date().toISOString()
+        });
+    }
+    save(WATCH_CONN_KEY, connections);
+}
+
+/* ---------- The "endpoint" ---------- */
+/**
+ * Simulates: POST watch_data_api.php
+ * Input: JSON object (same as PHP reads from php://input)
+ * Returns: same JSON shape as the PHP endpoint
+ */
+function watchDataAPI(input) {
+    try {
+        if (input && input.action) {
+
+            /* ----- action: log_connection ----- */
+            if (input.action === 'log_connection') {
+                insertSecurityEvent(
+                    'WATCH_CONNECTED',
+                    'INFO',
+                    'Smart watch connected: ' + (input.device_name || 'Unknown'),
+                    '127.0.0.1'
+                );
+
+                // Also track the connection record
+                updateWatchConnection(input.device_id || 'unknown', 1);
+
+                return { success: true, message: 'Connection logged' };
+            }
+
+            /* ----- action: log_disconnection ----- */
+            if (input.action === 'log_disconnection') {
+                const duration = input.connection_duration
+                    ? ' Duration: ' + input.connection_duration
+                    : '';
+                const description =
+                    'Smart watch disconnected: ' + (input.device_name || 'Unknown') + duration;
+
+                insertSecurityEvent('WATCH_DISCONNECTED', 'INFO', description, '127.0.0.1');
+                updateWatchConnection(input.device_id || 'unknown', 0);
+
+                return { success: true, message: 'Disconnection logged' };
+            }
+
+            // Unknown action → fall through to default save? PHP didn't do that,
+            // it silently returned nothing. We'll return an error for clarity.
+            return { success: false, error: 'Unknown action: ' + input.action };
+        }
+
+        /* ----- default: save watch data ----- */
+        const type = input?.type || '';
+        const value = input?.value || 0;
+        const device_id = input?.device_id || 'unknown';
+
+        const value_num = isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+        const motion = (type === 'steps') ? value_num : 0;
+
+        // Original PHP always used device_id 99 for watch data
+        insertSensorData(99, value_num, motion > 0 ? 1 : 0);
+
+        return { success: true, message: 'Data saved' };
+
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+/* ---------- fetch-style shim ---------- */
+/**
+ * Intercepts fetch('watch_data_api.php', { method: 'POST', body: JSON.stringify(...) })
+ * and routes to watchDataAPI().
+ */
+const _originalFetch = window.fetch;
+window.fetch = function(url, options) {
+    if (typeof url === 'string' && url.includes('watch_data_api.php')) {
+        let input = {};
+        try {
+            if (options && options.body) {
+                input = JSON.parse(options.body.toString());
+            }
+        } catch (e) {
+            return Promise.resolve(new Response(
+                JSON.stringify({ success: false, error: 'Invalid JSON body' }),
+                { status: 400, headers: { 'Content-Type': 'application/json' } }
+            ));
+        }
+
+        const result = watchDataAPI(input);
+        return Promise.resolve(new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+    }
+    return _originalFetch.apply(this, arguments);
+};
+
+/* ---------- Usage examples ---------- */
+
+// 1. Log a watch connection
+fetch('watch_data_api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        action: 'log_connection',
+        device_id: 'watch_001',
+        device_name: 'WAVEASTRA3_8943'
+    })
+})
+.then(r => r.json())
+.then(data => console.log('Connection:', data));
+// → { success: true, message: 'Connection logged' }
+
+// 2. Log a disconnection
+fetch('watch_data_api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        action: 'log_disconnection',
+        device_id: 'watch_001',
+        device_name: 'WAVEASTRA3_8943',
+        connection_duration: '5m 23s'
+    })
+})
+.then(r => r.json())
+.then(data => console.log('Disconnection:', data));
+// → { success: true, message: 'Disconnection logged' }
+
+// 3. Save a data point (heart rate)
+fetch('watch_data_api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        type: 'heart_rate',
+        value: 78,
+        device_id: 'watch_001'
+    })
+})
+.then(r => r.json())
+.then(data => console.log('Data:', data));
+// → { success: true, message: 'Data saved' }
+
+// 4. Direct call (no fetch needed)
+console.log(watchDataAPI({ action: 'log_connection', device_name: 'Test Watch' }));
+</script>
+
+</body>
+</html>
