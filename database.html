@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Database (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * IoTDatabase - JavaScript simulation of the PHP IoTDatabase class.
+ * Uses localStorage instead of MySQL so it runs entirely in the browser.
+ */
+class IoTDatabase {
+    constructor() {
+        this.dbName = 'iot_smart_home';
+        this.conn = null;
+    }
+
+    /**
+     * Simulates connecting to the database.
+     * Creates tables (localStorage keys) and inserts sample data if empty.
+     */
+    connect() {
+        if (this.conn) {
+            return this.conn;
+        }
+
+        try {
+            // Initialize localStorage "tables"
+            this.conn = {
+                devices: this._loadTable('devices'),
+                security_events: this._loadTable('security_events'),
+                watch_connections: this._loadTable('watch_connections')
+            };
+
+            // Create tables (ensure keys exist)
+            this._setupTables();
+
+            return this.conn;
+
+        } catch (e) {
+            console.error('Database Error:', e.message);
+            return null;
+        }
+    }
+
+    /**
+     * Simulates table creation.
+     */
+    _setupTables() {
+        if (!localStorage.getItem(this.dbName + '_devices')) {
+            localStorage.setItem(this.dbName + '_devices', JSON.stringify([]));
+        }
+        if (!localStorage.getItem(this.dbName + '_security_events')) {
+            localStorage.setItem(this.dbName + '_security_events', JSON.stringify([]));
+        }
+        if (!localStorage.getItem(this.dbName + '_watch_connections')) {
+            localStorage.setItem(this.dbName + '_watch_connections', JSON.stringify([]));
+        }
+
+        this.insertSampleData();
+    }
+
+    /**
+     * Simulates inserting sample device data if the table is empty.
+     */
+    insertSampleData() {
+        const devices = this._loadTable('devices');
+        if (devices.length === 0) {
+            const sampleDevices = [
+                { id: 1, device_name: 'Living Room Light', device_type: 'light', status: 1, value: 0, room: 'Living Room', ip_address: '192.168.1.101', mac_address: 'AA:BB:CC:DD:EE:01' },
+                { id: 2, device_name: 'Smart Thermostat', device_type: 'thermostat', status: 1, value: 22.5, room: 'Living Room', ip_address: '192.168.1.102', mac_address: 'AA:BB:CC:DD:EE:02' },
+                { id: 3, device_name: 'Front Door Camera', device_type: 'camera', status: 1, value: 0, room: 'Entrance', ip_address: '192.168.1.103', mac_address: 'AA:BB:CC:DD:EE:03' },
+                { id: 4, device_name: 'Main Door Lock', device_type: 'lock', status: 1, value: 1, room: 'Main Door', ip_address: '192.168.1.104', mac_address: 'AA:BB:CC:DD:EE:04' },
+                { id: 5, device_name: 'Hallway Motion Sensor', device_type: 'sensor', status: 1, value: 0, room: 'Hallway', ip_address: '192.168.1.105', mac_address: 'AA:BB:CC:DD:EE:05' },
+                { id: 6, device_name: 'Kitchen Smoke Detector', device_type: 'sensor', status: 1, value: 0, room: 'Kitchen', ip_address: '192.168.1.106', mac_address: 'AA:BB:CC:DD:EE:06' },
+                { id: 7, device_name: 'Bedroom Smart Plug', device_type: 'plug', status: 0, value: 0, room: 'Bedroom', ip_address: '192.168.1.107', mac_address: 'AA:BB:CC:DD:EE:07' },
+                { id: 8, device_name: 'Temperature Sensor', device_type: 'sensor', status: 1, value: 23.5, room: 'Bedroom', ip_address: '192.168.1.108', mac_address: 'AA:BB:CC:DD:EE:08' }
+            ];
+            this._saveTable('devices', sampleDevices);
+        }
+    }
+
+    /**
+     * Simulates logSecurityEvent().
+     */
+    logSecurityEvent(type, severity, description, ip) {
+        const events = this._loadTable('security_events');
+        const newEvent = {
+            id: events.length + 1,
+            event_type: type,
+            severity: severity,
+            description: description,
+            source_ip: ip,
+            timestamp: new Date().toISOString()
+        };
+        events.push(newEvent);
+        this._saveTable('security_events', events);
+        return true;
+    }
+
+    /**
+     * Simulates updateDeviceStatus().
+     */
+    updateDeviceStatus(device_id, status) {
+        const devices = this._loadTable('devices');
+        const device = devices.find(d => d.id === device_id);
+        if (device) {
+            device.status = status;
+            device.last_seen = new Date().toISOString();
+            this._saveTable('devices', devices);
+            return true;
+        }
+        return false;
+    }
+
+    /* -------- Helper methods (simulate SQL queries) -------- */
+
+    _loadTable(name) {
+        const raw = localStorage.getItem(this.dbName + '_' + name);
+        return raw ? JSON.parse(raw) : [];
+    }
+
+    _saveTable(name, data) {
+        localStorage.setItem(this.dbName + '_' + name, JSON.stringify(data));
+    }
+
+    /**
+     * Simulates: SELECT * FROM devices ORDER BY room, device_name
+     */
+    getDevices() {
+        const devices = this._loadTable('devices');
+        return devices.sort((a, b) => {
+            if (a.room === b.room) {
+                return a.device_name.localeCompare(b.device_name);
+            }
+            return a.room.localeCompare(b.room);
+        });
+    }
+
+    /**
+     * Simulates: SELECT * FROM security_events ORDER BY timestamp DESC LIMIT 5
+     */
+    getRecentEvents(limit = 5) {
+        const events = this._loadTable('security_events');
+        return events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, limit);
+    }
+
+    /**
+     * Simulates: SELECT device_type, COUNT(*) as count FROM devices GROUP BY device_type
+     */
+    getDeviceTypes() {
+        const devices = this._loadTable('devices');
+        const counts = {};
+        devices.forEach(d => {
+            counts[d.device_type] = (counts[d.device_type] || 0) + 1;
+        });
+        return Object.keys(counts).map(type => ({ device_type: type, count: counts[type] }));
+    }
+
+    /**
+     * Simulates: SELECT DATE(timestamp) as date, COUNT(*) as events
+     * FROM security_events GROUP BY DATE(timestamp) ORDER BY date DESC LIMIT 7
+     */
+    getEventTrend(limit = 7) {
+        const events = this._loadTable('security_events');
+        const grouped = {};
+        events.forEach(e => {
+            const date = e.timestamp.split('T')[0];
+            grouped[date] = (grouped[date] || 0) + 1;
+        });
+        return Object.keys(grouped)
+            .sort((a, b) => new Date(b) - new Date(a))
+            .slice(0, limit)
+            .map(date => ({ date, events: grouped[date] }));
+    }
+}
+
+/* -------- Usage example (mirrors the PHP pages) -------- */
+
+const db = new IoTDatabase();
+const conn = db.connect();
+
+// Log a sample security event
+db.logSecurityEvent('INTRUSION', 'HIGH', 'Unauthorized access attempt blocked', '192.168.1.200');
+
+// Update a device status
+db.updateDeviceStatus(1, 0);
+
+// Fetch data (replaces PHP queries)
+console.log('Devices:', db.getDevices());
+console.log('Recent Events:', db.getRecentEvents(5));
+console.log('Device Types:', db.getDeviceTypes());
+console.log('Event Trend:', db.getEventTrend(7));
+</script>
+
+</body>
+</html>
