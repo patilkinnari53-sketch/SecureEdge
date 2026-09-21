@@ -8,8 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- AOS (Animate On Scroll) -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --primary: #00ffff;
@@ -17,19 +18,63 @@
             --card-bg: #151f2f;
             --secondary: #9bb8e0;
             --danger: #ff4444;
+            --success: #00ff9d;
+            --warning: #ffd700;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0f1f;
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .text-cyber {
+        .text-cyber { color: #00ffff; text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); }
+        .text-secondary { color: #9bb8e0 !important; }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            background: rgba(10, 15, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ffff;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-link {
+            color: #fff !important;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-link:hover, .nav-link.active { color: #00ffff !important; }
+        .watch-bar {
+            background: rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #00ffff;
+            padding: 10px 0;
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid #00ffff;
             color: #00ffff;
-            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+            border-radius: 30px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: 0.25s;
         }
-        .text-secondary {
-            color: #9bb8e0 !important;
+        .btn-iot:hover {
+            background: #00ffff;
+            color: #0b0f1c;
+            box-shadow: 0 0 18px rgba(0, 255, 255, 0.5);
         }
+
+        /* ========== CARDS ========== */
         .cyber-card {
             background: #151f2f;
             border: 1px solid rgba(0, 255, 255, 0.2);
@@ -69,139 +114,394 @@
             font-weight: 600;
             font-size: 0.85rem;
         }
-        .bg-cyber {
-            background: #00ffff !important;
-            color: #0a0f1f !important;
+        .bg-cyber { background: #00ffff !important; color: #0a0f1f !important; }
+        .bg-info { background: #4169e1 !important; color: #fff !important; }
+
+        /* ========== STATUS DOTS ========== */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        .status-online { background: #00ff9d; box-shadow: 0 0 10px #00ff9d; }
+        .status-offline { background: #ff4d6d; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+
+        /* ========== FOOTER ========== */
+        .footer { position: relative; overflow: hidden; }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scan 8s linear infinite;
+        }
+        @keyframes scan {
+            0%   { left: -100%; }
+            50%  { left: 100%; }
+            100% { left: 100%; }
+        }
+        .footer-links li { transition: transform 0.3s ease; }
+        .footer-links li:hover { transform: translateX(5px); }
+        .footer-links a { transition: color 0.3s ease; }
+        .footer-links a:hover { color: #00ffff !important; }
+        .stats-mini .progress { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .stats-mini .progress-bar { border-radius: 10px; background: #00ffff; }
+        .social-links a {
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .social-links a:hover { transform: translateY(-3px); text-shadow: 0 0 15px #00ffff; }
+        .badge.bg-cyber { background: #00ffff; color: #0b0f1c; font-weight: 500; padding: 5px 10px; }
+        .architecture-badges .badge { transition: all 0.3s ease; cursor: default; }
+        .architecture-badges .badge:hover { transform: scale(1.1); box-shadow: 0 0 15px #00ffff; }
+
+        @media (max-width: 768px) {
+            .footer { text-align: center; }
+            .footer .text-md-end { text-align: center !important; margin-top: 15px; }
+            .layer-indicators { margin: 15px 0; }
         }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <div class="row mb-5">
-        <div class="col-12">
-            <h1 class="section-title" data-aos="fade-up">Results & Advantages</h1>
-        </div>
-    </div>
-
-    <!-- Key Metrics -->
-    <div class="row mb-5">
-        <!-- Metric 1 -->
-        <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="100">
-            <div class="cyber-card text-center">
-                <i class="bi bi-speedometer2 fs-1 text-cyber mb-3"></i>
-                <h2 class="display-4 fw-bold text-cyber counter" data-target="43">0</h2>
-                <span class="h4">%</span>
-                <p class="mt-2">Latency Reduction</p>
-            </div>
-        </div>
-        <!-- Metric 2 -->
-        <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
-            <div class="cyber-card text-center">
-                <i class="bi bi-shield fs-1 text-cyber mb-3"></i>
-                <h2 class="display-4 fw-bold text-cyber counter" data-target="98.7">0</h2>
-                <span class="h4">%</span>
-                <p class="mt-2">Attack Detection</p>
-            </div>
-        </div>
-        <!-- Metric 3 -->
-        <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="300">
-            <div class="cyber-card text-center">
-                <i class="bi bi-lock fs-1 text-cyber mb-3"></i>
-                <h2 class="display-4 fw-bold text-cyber counter" data-target="99.9">0</h2>
-                <span class="h4">%</span>
-                <p class="mt-2">Data Protection</p>
-            </div>
-        </div>
-        <!-- Metric 4 -->
-        <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="400">
-            <div class="cyber-card text-center">
-                <i class="bi bi-diagram-3 fs-1 text-cyber mb-3"></i>
-                <h2 class="display-4 fw-bold text-cyber counter" data-target="7">0</h2>
-                <span class="h4"></span>
-                <p class="mt-2">Security Layers</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Advantages & Disadvantages -->
-    <div class="row mb-5 g-4">
-        <div class="col-lg-6" data-aos="fade-right">
-            <div class="cyber-card h-100">
-                <h3 class="text-cyber mb-4"><i class="bi bi-check-circle-fill me-2"></i>Advantages</h3>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Reduced latency through edge processing</li>
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Improved security with multi-layer defense</li>
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Early attack detection at edge</li>
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Scalable architecture</li>
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Reduced cloud bandwidth usage</li>
-                    <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Privacy-preserving local processing</li>
+    <!-- ========== HEADER ========== -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-microchip me-2"></i>IoT Secure<span style="color: #00ffff;">Edge</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" id="mainNav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="devices.html">Devices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="security.html">Security</a></li>
+                    <li class="nav-item"><a class="nav-link" href="architecture.html">Architecture</a></li>
+                    <li class="nav-item"><a class="nav-link" href="results.html">Results</a></li>
+                    <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="watch_connection.html">My Watch</a></li>
                 </ul>
             </div>
         </div>
-        <div class="col-lg-6" data-aos="fade-left">
-            <div class="cyber-card h-100">
-                <h3 class="text-cyber mb-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Disadvantages</h3>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Higher initial hardware cost</li>
-                    <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Key management complexity</li>
-                    <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Computational overhead at edge</li>
-                    <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Requires specialized edge hardware</li>
-                </ul>
+    </nav>
+
+    <div class="watch-bar">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <i class="fas fa-clock text-cyber me-2"></i>
+                    <span id="watchStatus" class="text-secondary">Smart Watch: Disconnected</span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-iot btn-sm" onclick="connectWatch()">
+                        <i class="fas fa-bluetooth me-2"></i>Connect Watch
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Performance Graph -->
-    <div class="row">
-        <div class="col-12">
-            <div class="cyber-card" data-aos="fade-up">
-                <h3 class="text-cyber mb-4">Performance Comparison</h3>
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="progress mb-4" style="height: 30px;">
-                            <div class="progress-bar bg-danger" style="width: 100%">Traditional: 250ms</div>
+    <main>
+
+    <div class="container py-4">
+        <div class="row mb-5">
+            <div class="col-12">
+                <h1 class="section-title">Results & Advantages</h1>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row mb-5">
+            <div class="col-md-3 mb-4">
+                <div class="cyber-card text-center">
+                    <i class="bi bi-speedometer2 fs-1 text-cyber mb-3"></i>
+                    <h2 class="display-4 fw-bold text-cyber counter" data-target="43">0</h2>
+                    <span class="h4">%</span>
+                    <p class="mt-2">Latency Reduction</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="cyber-card text-center">
+                    <i class="bi bi-shield fs-1 text-cyber mb-3"></i>
+                    <h2 class="display-4 fw-bold text-cyber counter" data-target="98.7">0</h2>
+                    <span class="h4">%</span>
+                    <p class="mt-2">Attack Detection</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="cyber-card text-center">
+                    <i class="bi bi-lock fs-1 text-cyber mb-3"></i>
+                    <h2 class="display-4 fw-bold text-cyber counter" data-target="99.9">0</h2>
+                    <span class="h4">%</span>
+                    <p class="mt-2">Data Protection</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="cyber-card text-center">
+                    <i class="bi bi-diagram-3 fs-1 text-cyber mb-3"></i>
+                    <h2 class="display-4 fw-bold text-cyber counter" data-target="7">0</h2>
+                    <span class="h4"></span>
+                    <p class="mt-2">Security Layers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advantages & Disadvantages -->
+        <div class="row mb-5 g-4">
+            <div class="col-lg-6">
+                <div class="cyber-card h-100">
+                    <h3 class="text-cyber mb-4"><i class="bi bi-check-circle-fill me-2"></i>Advantages</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Reduced latency through edge processing</li>
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Improved security with multi-layer defense</li>
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Early attack detection at edge</li>
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Scalable architecture</li>
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Reduced cloud bandwidth usage</li>
+                        <li class="mb-3"><i class="bi bi-check-lg text-cyber me-2"></i> Privacy-preserving local processing</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="cyber-card h-100">
+                    <h3 class="text-cyber mb-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Disadvantages</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Higher initial hardware cost</li>
+                        <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Key management complexity</li>
+                        <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Computational overhead at edge</li>
+                        <li class="mb-3"><i class="bi bi-dash-circle text-secondary me-2"></i> Requires specialized edge hardware</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Graph -->
+        <div class="row">
+            <div class="col-12">
+                <div class="cyber-card">
+                    <h3 class="text-cyber mb-4">Performance Comparison</h3>
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="progress mb-4" style="height: 30px;">
+                                <div class="progress-bar bg-danger" style="width: 100%">Traditional: 250ms</div>
+                            </div>
+                            <div class="progress mb-4" style="height: 30px;">
+                                <div class="progress-bar bg-cyber" style="width: 43%">EdgeSecure: 107ms</div>
+                            </div>
+                            <div class="progress mb-4" style="height: 30px;">
+                                <div class="progress-bar bg-info" style="width: 100%">Cloud-Only: 380ms</div>
+                            </div>
                         </div>
-                        <div class="progress mb-4" style="height: 30px;">
-                            <div class="progress-bar bg-cyber" style="width: 43%">EdgeSecure: 107ms</div>
+                        <div class="col-md-4">
+                            <h2 class="text-cyber">43%</h2>
+                            <p>Latency Reduction</p>
                         </div>
-                        <div class="progress mb-4" style="height: 30px;">
-                            <div class="progress-bar bg-info" style="width: 100%">Cloud-Only: 380ms</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <h2 class="text-cyber">43%</h2>
-                        <p>Latency Reduction</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- AOS init -->
-<script>
-    AOS.init({ duration: 800, once: true });
+    </main>
 
-    // Counter animation for metric cards
-    document.querySelectorAll('.counter').forEach(el => {
-        const target = parseFloat(el.dataset.target);
-        const isDecimal = String(target).includes('.');
-        let current = 0;
-        const step = target / 60; // ~1s animation at 60fps
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer mt-5 py-5" style="background: linear-gradient(180deg, #151f2f 0%, #0a0f1f 100%); border-top: 3px solid #00ffff;">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-about">
+                        <h4 class="text-cyber mb-4">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            EdgeSecure<span style="color: #00ffff;">Arch</span>
+                        </h4>
+                        <p class="text-secondary mb-3">
+                            A Secure and Lightweight Multi-Layer Architecture for IoT-Based Smart Home Systems 
+                            Using Edge Computing. Three-layer defense with edge intelligence.
+                        </p>
+                        <div class="architecture-badges mt-3">
+                            <span class="badge bg-cyber text-dark me-2 mb-2"><i class="fas fa-microchip me-1"></i>Device Layer</span>
+                            <span class="badge bg-cyber text-dark me-2 mb-2"><i class="fas fa-server me-1"></i>Edge Layer</span>
+                            <span class="badge bg-cyber text-dark me-2 mb-2"><i class="fas fa-cloud me-1"></i>Cloud Layer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="text-cyber mb-4">By Layer</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="architecture.html#device-layer" class="text-secondary text-decoration-none"><i class="fas fa-microchip text-cyber me-2 small"></i>Device Layer</a></li>
+                        <li class="mb-2"><a href="architecture.html#edge-layer" class="text-secondary text-decoration-none"><i class="fas fa-server text-cyber me-2 small"></i>Edge Layer</a></li>
+                        <li class="mb-2"><a href="architecture.html#cloud-layer" class="text-secondary text-decoration-none"><i class="fas fa-cloud text-cyber me-2 small"></i>Cloud Layer</a></li>
+                        <li class="mb-2"><a href="security.html" class="text-secondary text-decoration-none"><i class="fas fa-shield-alt text-cyber me-2 small"></i>Security</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="text-cyber mb-4">Security</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><span class="text-secondary"><i class="fas fa-lock text-cyber me-2 small"></i>AES-256</span></li>
+                        <li class="mb-2"><span class="text-secondary"><i class="fas fa-key text-cyber me-2 small"></i>RSA-2048</span></li>
+                        <li class="mb-2"><span class="text-secondary"><i class="fas fa-shield text-cyber me-2 small"></i>TLS 1.3</span></li>
+                        <li class="mb-2"><span class="text-secondary"><i class="fas fa-robot text-cyber me-2 small"></i>IDS at Edge</span></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-cyber mb-4">Architecture Stats</h5>
+                    <div class="stats-mini">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-secondary">Latency Reduction</span>
+                            <span class="text-cyber fw-bold">43%</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 5px;">
+                            <div class="progress-bar" style="width: 43%; background: #00ffff;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-secondary">Attack Detection</span>
+                            <span class="text-cyber fw-bold">98.7%</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 5px;">
+                            <div class="progress-bar" style="width: 98.7%; background: #00ffff;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-secondary">Edge Processing</span>
+                            <span class="text-cyber fw-bold">5ms</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 5px;">
+                            <div class="progress-bar" style="width: 100%; background: #00ffff;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
+
+            <div class="row align-items-center g-3">
+                <div class="col-md-4">
+                    <div class="live-status d-flex align-items-center">
+                        <span class="status-dot status-online me-2"></span>
+                        <span class="text-secondary small">Edge Gateway: </span>
+                        <span class="text-cyber small ms-1">Active</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="layer-indicators">
+                        <span class="badge bg-cyber text-dark me-1">Device</span>
+                        <i class="fas fa-arrow-right text-cyber mx-1 small"></i>
+                        <span class="badge bg-cyber text-dark me-1">Edge</span>
+                        <i class="fas fa-arrow-right text-cyber mx-1 small"></i>
+                        <span class="badge bg-cyber text-dark">Cloud</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="text-secondary small">
+                        <i class="fas fa-clock text-cyber me-1"></i>
+                        <span class="live-time">00:00:00</span> UTC
+                    </span>
+                </div>
+            </div>
+
+            <hr style="border-color: #00ffff; opacity: 0.25;" class="my-4">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-secondary small mb-0">
+                        © <span id="footerYear">2025</span> EdgeSecure Architecture. All rights reserved.
+                        <br>
+                        <span class="text-cyber">A Secure and Lightweight Multi-Layer Architecture for IoT-Based Smart Home Systems</span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="social-links">
+                        <a href="#" class="text-cyber me-3" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-cyber me-3" title="Research Paper"><i class="fas fa-file-alt"></i></a>
+                        <a href="#" class="text-cyber me-3" title="Documentation"><i class="fas fa-book"></i></a>
+                        <a href="#" class="text-cyber" title="Contact"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="text-center small text-secondary opacity-50">
+                        <i class="fas fa-quote-left text-cyber me-2"></i>
+                        Secure by design, protected by edge, verified by layers
+                        <i class="fas fa-quote-right text-cyber ms-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+        function connectWatch() {
+            const s = document.getElementById('watchStatus');
+            if (!s) return;
+            if (s.textContent.includes('Disconnected')) {
+                s.textContent = 'Smart Watch: Connected';
+                s.classList.remove('text-secondary');
+                s.classList.add('text-cyber');
+            } else {
+                s.textContent = 'Smart Watch: Disconnected';
+                s.classList.add('text-secondary');
+                s.classList.remove('text-cyber');
             }
-            el.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
-        }, 16);
-    });
-</script>
+        }
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        function updateFooterClock() {
+            const t = new Date().toUTCString().split(' ')[4];
+            document.querySelectorAll('.live-time').forEach(function(el) {
+                el.textContent = t;
+            });
+        }
+        updateFooterClock();
+        setInterval(updateFooterClock, 1000);
+
+        const yearEl = document.getElementById('footerYear');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        (function() {
+            const current = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('#mainNav .nav-link').forEach(function(link) {
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        })();
+
+        // Counter animation
+        document.querySelectorAll('.counter').forEach(function(el) {
+            const target = parseFloat(el.dataset.target);
+            const isDecimal = String(target).includes('.');
+            let current = 0;
+            const step = target / 60;
+            const timer = setInterval(function() {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+            }, 16);
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
