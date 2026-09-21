@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Security API (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * security_api.js - JavaScript simulation of the PHP security_api.php endpoint.
+ * Handles the same actions ('simulate_attack', 'get_stats') using localStorage.
+ */
+
+const DB_KEY = 'iot_smart_home_security_events';
+
+/* ---------- Storage helpers (same as security page) ---------- */
+function loadEvents() {
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : [];
+}
+
+function saveEvents(events) {
+    localStorage.setItem(DB_KEY, JSON.stringify(events));
+}
+
+function insertEvent(type, severity, description, ip) {
+    const events = loadEvents();
+    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+    events.push({
+        id: newId,
+        event_type: type,
+        severity: severity,
+        description: description,
+        source_ip: ip,
+        timestamp: new Date().toISOString()
+    });
+    saveEvents(events);
+    return newId;
+}
+
+/* ---------- API handler (replaces the PHP switch) ---------- */
+function securityAPI(action) {
+    switch (action) {
+        case 'simulate_attack': {
+            const attacks = [
+                ['BRUTE_FORCE', 'HIGH', 'Multiple failed login attempts detected', '45.33.22.11'],
+                ['DDOS_ATTEMPT', 'HIGH', 'Unusual traffic pattern detected', '78.99.44.55'],
+                ['PORT_SCAN', 'MEDIUM', 'Port scanning activity detected', '112.33.44.66'],
+                ['SQL_INJECTION', 'HIGH', 'SQL injection attempt blocked', '203.45.67.89'],
+                ['MITM_ATTEMPT', 'CRITICAL', 'Man-in-the-middle attack detected', '156.78.90.12']
+            ];
+
+            const attack = attacks[Math.floor(Math.random() * attacks.length)];
+            insertEvent(attack[0], attack[1], attack[2], attack[3]);
+
+            return { success: true, attack };
+        }
+
+        case 'get_stats': {
+            const events = loadEvents();
+            const high   = events.filter(e => e.severity === 'HIGH').length;
+            const medium = events.filter(e => e.severity === 'MEDIUM').length;
+            const low    = events.filter(e => e.severity === 'LOW').length;
+
+            return { high, medium, low };
+        }
+
+        case 'log_event': {
+            // Not in the original PHP, but useful for the security page's
+            // rotateKeys() / testEdge() calls.
+            const params = new URLSearchParams(window.location.search);
+            insertEvent(
+                params.get('type') || 'GENERIC',
+                'INFO',
+                params.get('desc') || 'Event logged',
+                '127.0.0.1'
+            );
+            return { success: true };
+        }
+
+        default:
+            return { error: 'Invalid action' };
+    }
+}
+
+/* ---------- Usage examples ---------- */
+
+// Simulate an attack
+const attackResult = securityAPI('simulate_attack');
+console.log('Attack result:', attackResult);
+// → { success: true, attack: ['BRUTE_FORCE', 'HIGH', 'Multiple failed login attempts detected', '45.33.22.11'] }
+
+// Get severity stats
+const stats = securityAPI('get_stats');
+console.log('Stats:', stats);
+// → { high: 3, medium: 1, low: 0 }
+
+// Invalid action
+console.log(securityAPI('unknown'));
+// → { error: 'Invalid action' }
+</script>
+
+</body>
+</html>
