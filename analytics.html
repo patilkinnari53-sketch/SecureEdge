@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - IoT Data Insights</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- jQuery (for live stream demo) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Minimal cyber style to match original theme */
+        body {
+            background: #0b0f1c;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+        }
+        .iot-card {
+            background: #141b2b;
+            border: 1px solid #2a3a55;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s, border-color 0.2s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 255, 255, 0.1);
+        }
+        .iot-card h4 {
+            color: #b0d4ff;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #2a3a55;
+            padding-bottom: 0.6rem;
+        }
+        .data-stream {
+            background: #0a0f18;
+            border: 1px solid #2a3a55;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #9bb8e0;
+        }
+        .data-stream div {
+            padding: 0.2rem 0;
+            border-bottom: 1px dashed #1e2b40;
+        }
+        .data-stream div:last-child {
+            border-bottom: none;
+        }
+        .container {
+            max-width: 1300px;
+        }
+        h1 {
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        canvas {
+            max-height: 240px;
+            max-width: 100%;
+        }
+        /* Footer placeholder minimal */
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <h1 class="mb-4" data-aos="fade-up">
+        <i class="fas fa-chart-line text-cyber me-2"></i>
+        IoT Analytics Dashboard
+    </h1>
+    
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="iot-card" data-aos="fade-right">
+                <h4 class="mb-3">Security Events Trend</h4>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="iot-card" data-aos="fade-left">
+                <h4 class="mb-3">Device Activity</h4>
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="iot-card" data-aos="fade-right">
+                <h4>Edge Computing</h4>
+                <canvas id="edgeChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="iot-card" data-aos="fade-left">
+                <h4>Live Data Stream</h4>
+                <div class="data-stream" style="height: 200px; overflow-y: auto;" id="liveStream">
+                    <!-- Live data will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer (simplified placeholder) -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; 2025
+</div>
+
+<!-- AOS init -->
+<script>
+    AOS.init({ duration: 800, once: true });
+</script>
+
+<script>
+// --- Static demo data replacing PHP variables ---
+// Simulated security events trend (last 7 days)
+const trendLabels = ['2025-03-10', '2025-03-11', '2025-03-12', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-16'];
+const trendData = [12, 19, 8, 15, 22, 17, 24];
+
+// --- Trend Chart ---
+const ctx1 = document.getElementById('trendChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Security Events',
+            data: trendData,
+            borderColor: '#00ffff',
+            backgroundColor: 'rgba(0, 255, 255, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: '#00ffff',
+            pointBorderColor: '#0b0f1c',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { labels: { color: '#fff' } }
+        },
+        scales: {
+            y: { 
+                grid: { color: 'rgba(255,255,255,0.1)' }, 
+                ticks: { color: '#fff' },
+                beginAtZero: true
+            },
+            x: { 
+                grid: { color: 'rgba(255,255,255,0.1)' }, 
+                ticks: { color: '#fff' } 
+            }
+        }
+    }
+});
+
+// --- Device Activity Chart (bar) ---
+const ctx2 = document.getElementById('activityChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: ['Living Room', 'Bedroom', 'Kitchen', 'Hallway', 'Garage'],
+        datasets: [{
+            label: 'Active Devices',
+            data: [8, 5, 6, 4, 3],
+            backgroundColor: 'rgba(0, 255, 255, 0.6)',
+            borderColor: '#00ffff',
+            borderWidth: 1,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { labels: { color: '#fff' } }
+        },
+        scales: {
+            y: { 
+                grid: { color: 'rgba(255,255,255,0.1)' }, 
+                ticks: { color: '#fff' },
+                beginAtZero: true
+            },
+            x: { 
+                grid: { color: 'rgba(255,255,255,0.1)' }, 
+                ticks: { color: '#fff' } 
+            }
+        }
+    }
+});
+
+// --- Edge Computing Chart (doughnut) ---
+const ctx3 = document.getElementById('edgeChart').getContext('2d');
+new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+        labels: ['Processed on Edge', 'Cloud Offload', 'Idle'],
+        datasets: [{
+            data: [68, 22, 10],
+            backgroundColor: ['#00ffff', '#4d7cff', '#2a3a55'],
+            borderColor: '#141b2b',
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { 
+                labels: { color: '#fff', boxWidth: 12, padding: 10 } 
+            }
+        },
+        cutout: '65%'
+    }
+});
+
+// --- Live Data Stream Simulation (original PHP had it, but we keep the same JavaScript) ---
+setInterval(function() {
+    const types = ['Temperature', 'Motion', 'Security', 'Status'];
+    const rooms = ['Living Room', 'Bedroom', 'Kitchen', 'Hallway'];
+    
+    const data = `${new Date().toLocaleTimeString()} - ${rooms[Math.floor(Math.random()*4)]}: ${types[Math.floor(Math.random()*4)]} data received`;
+    
+    $('#liveStream').prepend('<div>' + data + '</div>');
+    if($('#liveStream div').length > 10) {
+        $('#liveStream div:last').remove();
+    }
+}, 2000);
+</script>
+
+<!-- Bootstrap JS (optional, but good for some components) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
