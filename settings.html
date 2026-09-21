@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - System Configuration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ffff;
+            --dark: #0a0f1f;
+            --card-bg: #151f2f;
+            --success: #00ff9d;
+            --danger: #ff4444;
+            --warning: #ffd700;
+            --secondary: #9bb8e0;
+        }
+        body {
+            background: #0a0f1f;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .text-cyber {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        .text-secondary {
+            color: #9bb8e0 !important;
+        }
+        .iot-card {
+            background: #151f2f;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: 0.3s;
+            height: 100%;
+        }
+        .iot-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.15);
+        }
+        .btn-iot {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 25px;
+            transition: 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-iot:hover {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        .border-cyber {
+            border-color: var(--primary) !important;
+        }
+        .form-control.bg-dark,
+        .form-select.bg-dark {
+            background-color: #0a0f18 !important;
+            color: #fff !important;
+        }
+        .form-control.border-cyber,
+        .form-select.border-cyber {
+            border-color: var(--primary) !important;
+        }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 255, 255, 0.25);
+        }
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .form-range::-webkit-slider-thumb {
+            background: var(--primary);
+        }
+        .form-range::-moz-range-thumb {
+            background: var(--primary);
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+        hr.border-cyber {
+            border-color: var(--primary) !important;
+            opacity: 0.3;
+        }
+        .footer-placeholder {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid #1e2b40;
+            text-align: center;
+            color: #6a7f9e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <h1 class="mb-4" data-aos="fade-up">
+        <i class="fas fa-cog text-cyber me-2"></i>
+        System Settings
+    </h1>
+    
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="iot-card">
+                <h4 class="mb-4">Security Configuration</h4>
+                
+                <div id="settingsMessage" class="alert mb-3 d-none" 
+                     style="background: rgba(0,255,0,0.1); border: 1px solid #00ff9d; color: #00ff9d;"></div>
+
+                <form id="settingsForm">
+                    <!-- Encryption Settings -->
+                    <div class="mb-4">
+                        <h5 class="text-cyber mb-3">Encryption</h5>
+                        <div class="mb-3">
+                            <label class="form-label">AES Key Length</label>
+                            <select id="aesKey" class="form-select bg-dark text-white border-cyber">
+                                <option value="AES-256" selected>AES-256</option>
+                                <option value="AES-192">AES-192</option>
+                                <option value="AES-128">AES-128</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">RSA Key Size</label>
+                            <select id="rsaKey" class="form-select bg-dark text-white border-cyber">
+                                <option value="2048" selected>2048 bits</option>
+                                <option value="4096">4096 bits</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- IDS Settings -->
+                    <div class="mb-4">
+                        <h5 class="text-cyber mb-3">Intrusion Detection</h5>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="realtimeMonitoring" checked>
+                            <label class="form-check-label" for="realtimeMonitoring">Enable Real-time Monitoring</label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="autoBlock" checked>
+                            <label class="form-check-label" for="autoBlock">Auto-block Suspicious IPs</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sensitivity Level: <span id="sensitivityValue" class="text-cyber">7</span></label>
+                            <input type="range" class="form-range" min="1" max="10" value="7" id="sensitivity">
+                        </div>
+                    </div>
+                    
+                    <!-- Edge Computing -->
+                    <div class="mb-4">
+                        <h5 class="text-cyber mb-3">Edge Computing</h5>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="edgeProcessing" checked>
+                            <label class="form-check-label" for="edgeProcessing">Process Data at Edge</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Edge Cache Duration (seconds)</label>
+                            <input type="number" id="cacheDuration" class="form-control bg-dark text-white border-cyber" value="300">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-iot">
+                        <i class="fas fa-save me-2"></i>Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="iot-card">
+                <h4 class="mb-3">System Info</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-shield text-cyber me-2"></i>Security Level: High</li>
+                    <li class="mb-2"><i class="fas fa-clock text-cyber me-2"></i>Uptime: 15 days</li>
+                    <li class="mb-2"><i class="fas fa-microchip text-cyber me-2"></i>Edge Nodes: 3 active</li>
+                    <li class="mb-2"><i class="fas fa-database text-cyber me-2"></i>Storage: 45% used</li>
+                </ul>
+                
+                <hr class="border-cyber">
+                
+                <h5 class="text-cyber mb-3">Network Status</h5>
+                <div class="mb-2">
+                    <span class="status-dot status-online"></span> MQTT Broker
+                </div>
+                <div class="mb-2">
+                    <span class="status-dot status-online"></span> Edge Gateway
+                </div>
+                <div class="mb-2">
+                    <span class="status-dot status-online"></span> Cloud Sync
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer placeholder -->
+<div class="footer-placeholder">
+    <i class="fas fa-microchip me-1"></i> IoT Data Insights &copy; <span id="footerYear">2025</span>
+</div>
+
+<!-- AOS init -->
+<script>
+    AOS.init({ duration: 800, once: true });
+</script>
+
+<script>
+/**
+ * Settings persistence + event logging.
+ * Replaces the PHP $_POST handling with localStorage.
+ */
+
+const SETTINGS_KEY = 'iot_smart_home_settings';
+const EVENTS_KEY = 'iot_smart_home_security_events';
+
+/* ---------- Settings load/save ---------- */
+function loadSettings() {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : null;
+}
+
+function saveSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function applySettingsToForm(s) {
+    if (!s) return;
+    document.getElementById('aesKey').value = s.aesKey;
+    document.getElementById('rsaKey').value = s.rsaKey;
+    document.getElementById('realtimeMonitoring').checked = s.realtimeMonitoring;
+    document.getElementById('autoBlock').checked = s.autoBlock;
+    document.getElementById('sensitivity').value = s.sensitivity;
+    document.getElementById('sensitivityValue').textContent = s.sensitivity;
+    document.getElementById('edgeProcessing').checked = s.edgeProcessing;
+    document.getElementById('cacheDuration').value = s.cacheDuration;
+}
+
+function collectSettings() {
+    return {
+        aesKey: document.getElementById('aesKey').value,
+        rsaKey: document.getElementById('rsaKey').value,
+        realtimeMonitoring: document.getElementById('realtimeMonitoring').checked,
+        autoBlock: document.getElementById('autoBlock').checked,
+        sensitivity: parseInt(document.getElementById('sensitivity').value, 10),
+        edgeProcessing: document.getElementById('edgeProcessing').checked,
+        cacheDuration: parseInt(document.getElementById('cacheDuration').value, 10) || 0
+    };
+}
+
+/* ---------- Event log (shared with security page) ---------- */
+function logSecurityEvent(type, severity, description, ip) {
+    const raw = localStorage.getItem(EVENTS_KEY);
+    const events = raw ? JSON.parse(raw) : [];
+    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+    events.push({
+        id: newId,
+        event_type: type,
+        severity: severity,
+        description: description,
+        source_ip: ip,
+        timestamp: new Date().toISOString()
+    });
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+}
+
+/* ---------- Form submit ---------- */
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const settings = collectSettings();
+    saveSettings(settings);
+    logSecurityEvent('SETTINGS_CHANGE', 'INFO', 'System settings updated', '127.0.0.1');
+
+    const msg = document.getElementById('settingsMessage');
+    msg.textContent = '✅ Settings saved successfully!';
+    msg.classList.remove('d-none');
+    setTimeout(() => msg.classList.add('d-none'), 3000);
+});
+
+/* ---------- Live sensitivity label ---------- */
+document.getElementById('sensitivity').addEventListener('input', function() {
+    document.getElementById('sensitivityValue').textContent = this.value;
+});
+
+/* ---------- Init ---------- */
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+applySettingsToForm(loadSettings());
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
