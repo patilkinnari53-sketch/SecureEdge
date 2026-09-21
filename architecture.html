@@ -8,9 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- AOS CSS + JS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <style>
         :root {
@@ -221,12 +218,6 @@
             transform: translateY(-3px);
             text-shadow: 0 0 15px #00ffff;
         }
-        .footer hr.border-cyber {
-            border-color: #00ffff !important;
-            opacity: 0.2;
-            transition: opacity 0.3s ease;
-        }
-        .footer:hover hr.border-cyber { opacity: 0.4; }
         .architecture-badges .badge {
             transition: all 0.3s ease;
             cursor: default;
@@ -235,11 +226,6 @@
             transform: scale(1.1);
             box-shadow: 0 0 15px #00ffff;
         }
-        .fa-beat { animation: beat 0.5s ease; }
-        @keyframes beat {
-            0%, 100% { transform: scale(1); }
-            50%      { transform: scale(1.2); }
-        }
 
         @media (max-width: 768px) {
             .flow-step { margin-bottom: 15px; }
@@ -247,18 +233,6 @@
             .footer { text-align: center; }
             .footer .text-md-end { text-align: center !important; margin-top: 15px; }
             .layer-indicators { margin: 15px 0; }
-        }
-
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #00ffff;
-            color: #0a0f1f;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 9999;
-            box-shadow: 0 5px 15px rgba(0,255,255,0.3);
         }
     </style>
 </head>
@@ -309,10 +283,10 @@
         <!-- Page Header -->
         <div class="row mb-5">
             <div class="col-12 text-center">
-                <h1 class="display-3 fw-bold mb-4" data-aos="fade-up">
+                <h1 class="display-3 fw-bold mb-4">
                     <span class="text-cyber">Three-Layer Edge</span> Architecture
                 </h1>
-                <p class="lead text-secondary mx-auto" style="max-width: 800px;" data-aos="fade-up" data-aos-delay="100">
+                <p class="lead text-secondary mx-auto" style="max-width: 800px;">
                     A secure and lightweight multi-layer architecture combining device, edge, and cloud computing 
                     for IoT-based smart home systems
                 </p>
@@ -322,7 +296,7 @@
         <!-- Architecture Overview Diagram -->
         <div class="row mb-5">
             <div class="col-12">
-                <div class="iot-card p-5" data-aos="fade-up">
+                <div class="iot-card p-5">
                     <div class="row align-items-center text-center g-4">
                         <!-- Device Layer -->
                         <div class="col-md-3">
@@ -405,7 +379,7 @@
         <!-- Architecture Highlights -->
         <div class="row mb-5 g-4">
             <div class="col-md-3">
-                <div class="iot-card text-center" data-aos="fade-up">
+                <div class="iot-card text-center">
                     <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
                     <h2 class="text-cyber">43%</h2>
                     <p class="text-secondary">Latency Reduction</p>
@@ -413,7 +387,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="iot-card text-center">
                     <i class="fas fa-shield-virus fa-3x text-cyber mb-3"></i>
                     <h2 class="text-cyber">98.7%</h2>
                     <p class="text-secondary">Attack Detection</p>
@@ -421,7 +395,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="iot-card text-center">
                     <i class="fas fa-layer-group fa-3x text-cyber mb-3"></i>
                     <h2 class="text-cyber">3</h2>
                     <p class="text-secondary">Security Layers</p>
@@ -429,7 +403,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="iot-card text-center" data-aos="fade-up" data-aos-delay="300">
+                <div class="iot-card text-center">
                     <i class="fas fa-clock fa-3x text-cyber mb-3"></i>
                     <h2 class="text-cyber">5ms</h2>
                     <p class="text-secondary">Edge Processing</p>
@@ -448,7 +422,7 @@
         <!-- Layer 1: Device Layer -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="iot-card" data-aos="fade-up">
+                <div class="iot-card">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="layer-detail-icon">
@@ -499,7 +473,7 @@
         <!-- Layer 2: Edge Layer (Core) -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="iot-card border-cyber" style="border-width: 2px;" data-aos="fade-up">
+                <div class="iot-card border-cyber" style="border-width: 2px;">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="layer-detail-icon">
@@ -562,7 +536,7 @@
         <!-- Layer 3: Cloud Layer -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="iot-card" data-aos="fade-up">
+                <div class="iot-card">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="layer-detail-icon">
@@ -620,7 +594,7 @@
 
         <div class="row mb-5">
             <div class="col-12">
-                <div class="iot-card p-4" data-aos="fade-up">
+                <div class="iot-card p-4">
                     <div class="flow-diagram">
                         <!-- Step 1 -->
                         <div class="row align-items-center mb-4">
@@ -715,7 +689,7 @@
 
         <div class="row mb-5">
             <div class="col-12">
-                <div class="iot-card" data-aos="fade-up">
+                <div class="iot-card">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover">
                             <thead>
@@ -765,7 +739,7 @@
 
         <div class="row g-4 mb-5">
             <div class="col-md-4">
-                <div class="iot-card h-100" data-aos="fade-up">
+                <div class="iot-card h-100">
                     <i class="fas fa-bolt fa-3x text-cyber mb-3"></i>
                     <h4>Lightweight</h4>
                     <p class="text-secondary">Minimal computational overhead with efficient protocols and edge processing</p>
@@ -777,7 +751,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="iot-card h-100" data-aos="fade-up" data-aos-delay="100">
+                <div class="iot-card h-100">
                     <i class="fas fa-shield-alt fa-3x text-cyber mb-3"></i>
                     <h4>Secure</h4>
                     <p class="text-secondary">Multi-layer defense with encryption at every level</p>
@@ -789,7 +763,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="iot-card h-100" data-aos="fade-up" data-aos-delay="200">
+                <div class="iot-card h-100">
                     <i class="fas fa-microchip fa-3x text-cyber mb-3"></i>
                     <h4>Edge Computing</h4>
                     <p class="text-secondary">Real-time processing at the edge reduces cloud dependency</p>
@@ -805,7 +779,7 @@
         <!-- Technical Specifications -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="iot-card" data-aos="fade-up">
+                <div class="iot-card">
                     <h4 class="text-cyber mb-4">Technical Specifications</h4>
                     <div class="row">
                         <div class="col-md-3">
@@ -963,7 +937,6 @@
 
     <!-- ========== SCRIPTS ========== -->
     <script>
-        // Watch toggle
         function connectWatch() {
             const s = document.getElementById('watchStatus');
             if (!s) return;
@@ -978,7 +951,6 @@
             }
         }
 
-        // Footer clock
         function updateFooterClock() {
             const t = new Date().toUTCString().split(' ')[4];
             document.querySelectorAll('.live-time').forEach(function(el) {
@@ -988,11 +960,9 @@
         updateFooterClock();
         setInterval(updateFooterClock, 1000);
 
-        // Footer year
         const yearEl = document.getElementById('footerYear');
         if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-        // Active nav link
         (function() {
             const current = window.location.pathname.split('/').pop() || 'index.html';
             document.querySelectorAll('#mainNav .nav-link').forEach(function(link) {
@@ -1001,18 +971,6 @@
                 }
             });
         })();
-
-        // AOS init with fallback (makes everything visible if AOS fails)
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof AOS !== 'undefined') {
-                AOS.init({ duration: 800, once: true });
-            } else {
-                document.querySelectorAll('[data-aos]').forEach(function(el) {
-                    el.style.opacity = '1';
-                    el.style.transform = 'none';
-                });
-            }
-        });
     </script>
 
     <!-- Bootstrap JS -->
