@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Toggle Device API (JavaScript Simulation)</title>
+</head>
+<body>
+
+<script>
+/**
+ * toggle_device.js - JavaScript simulation of toggle_device.php
+ * Replaces the PHP/MySQL UPDATE with a localStorage write.
+ */
+
+const DB_NAME = 'iot_smart_home';
+const DEVICES_KEY = DB_NAME + '_devices';
+const EVENTS_KEY  = DB_NAME + '_security_events';
+
+/* ---------- Storage helpers ---------- */
+function loadDevices() {
+    const raw = localStorage.getItem(DEVICES_KEY);
+    return raw ? JSON.parse(raw) : [];
+}
+
+function saveDevices(devices) {
+    localStorage.setItem(DEVICES_KEY, JSON.stringify(devices));
+}
+
+function logSecurityEvent(type, severity, description, ip) {
+    const raw = localStorage.getItem(EVENTS_KEY);
+    const events = raw ? JSON.parse(raw) : [];
+    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+    events.push({
+        id: newId,
+        event_type: type,
+        severity: severity,
+        description: description,
+        source_ip: ip,
+        timestamp: new Date().toISOString()
+    });
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
+}
+
+/* ---------- The "endpoint" ---------- */
+/**
+ * Simulates: POST toggle_device.php
+ *   body: device_id=1&status=1
+ *
+ * Returns the same JSON shape: { success: true }
+ * or { success: false, error: '...' }
+ */
+function toggleDevice(device_id, status) {
+    try {
+        device_id = parseInt(device_id, 10) || 0;
+        status = parseInt(status, 10) || 0;
+
+        const devices = loadDevices();
+        const device = devices.find(d => d.id === device_id);
+
+        if (!device) {
+            return { success: false, error: 'Device not found' };
+        }
+
+        // "UPDATE devices SET status = ?, last_seen = NOW() WHERE id = ?"
+        device.status = status;
+        device.last_seen = new Date().toISOString();
+        saveDevices(devices);
+
+        // "logSecurityEvent('DEVICE_TOGGLE', 'INFO', ...)"
+        logSecurityEvent(
+            'DEVICE_TOGGLE',
+            'INFO',
+            `Device '${device.device_name}' turned ${status ? 'ON' : 'OFF'}`,
+            '127.0.0.1'
+        );
+
+        return { success: true };
+
+    } catch (e) {
+        return { success: false, error: e.message };
+    }
+}
+
+/* ---------- Optional: fetch-style shim ---------- */
+/**
+ * If your existing pages call:
+ *   fetch('toggle_device.php', { method: 'POST', body: 'device_id=1&status=1' })
+ * this shim intercepts those calls and routes them to toggleDevice().
+ * Works with both URLSearchParams and plain string bodies.
+ */
+const _originalFetch = window.fetch;
+window.fetch = function(url, options) {
+    if (typeof url === 'string' && url.includes('toggle_device.php')) {
+        let body = '';
+        if (options && options.body) {
+            body = options.body.toString();
+        }
+        const params = new URLSearchParams(body);
+        const device_id = params.get('device_id') || 0;
+        const status = params.get('status') || 0;
+
+        const result = toggleDevice(device_id, status);
+
+        return Promise.resolve(new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        }));
+    }
+    return _originalFetch.apply(this, arguments);
+};
+
+/* ---------- Usage examples ---------- */
+
+// Direct call
+console.log(toggleDevice(1, 1));
+// → { success: true }
+
+// Via fetch (works with the shim above)
+fetch('toggle_device.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'device_id=1&status=0'
+})
+.then(r => r.json())
+.then(data => console.log('Fetch result:', data));
+// → Fetch result: { success: true }
+</script>
+
+</body>
+</html>
