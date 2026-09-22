@@ -108,32 +108,6 @@ No backend, no database server, no build tools — just pure front-end code runn
 
 ---
 
-## 🚀 Getting Started
-
-### Run Locally
-
-1. Download or clone the repository to your computer
-2. Start a simple local server (Python users can run `python -m http.server 8000` in the folder)
-3. Open `http://localhost:8000` in your browser
-
-Opening the HTML file directly via `file://` will break Bluetooth and some JavaScript features, so always use a local server.
-
-### Deploy on GitHub Pages
-
-1. Push all files to a GitHub repository
-2. Go to **Settings → Pages**
-3. Set source to **Deploy from a branch** → `main` → `/ (root)`
-4. Save — the site goes live at `https://<username>.github.io/SecureEdge/`
-
-### Deploy on Netlify
-
-1. Sign in to Netlify
-2. Import your GitHub repo
-3. Leave all build settings empty (Build command, Publish directory, Base directory)
-4. Click **Deploy**
-
----
-
 ## 🎮 How to Use
 
 ### 1. Login
